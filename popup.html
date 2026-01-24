@@ -1,0 +1,405 @@
+<!-- popup.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      width: 320px;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fafafa;
+    }
+    
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+    }
+    
+    .section {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      background: white;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    
+    select:hover {
+      border-color: #999;
+    }
+    
+    select:focus {
+      outline: none;
+      border-color: #6366f1;
+    }
+    
+    .toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    
+    .toggle-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+    
+    .switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+    }
+    
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      border-radius: 26px;
+      transition: 0.3s;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+    
+    input:checked + .slider {
+      background-color: #6366f1;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+    
+    .status {
+      margin-top: 16px;
+      padding: 12px;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #0369a1;
+      text-align: center;
+    }
+    
+    .hotkeys {
+      margin-top: 20px;
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    
+    .hotkeys-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .hotkey {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 4px 0;
+      color: #1a1a1a;
+    }
+    
+    .hotkey kbd {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+    }
+    
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: monospace;
+      margin-top: 4px;
+    }
+    
+    input[type="text"]:focus, input[type="password"]:focus {
+      outline: none;
+      border-color: #6366f1;
+    }
+    
+    .api-section {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .api-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .api-help {
+      font-size: 11px;
+      color: #999;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    
+    .api-help a {
+      color: #6366f1;
+      text-decoration: none;
+    }
+    
+    .api-help a:hover {
+      text-decoration: underline;
+    }
+    
+    .button {
+      width: 100%;
+      padding: 10px;
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 12px;
+    }
+    
+    .button:hover {
+      background: #4f46e5;
+    }
+    
+    .button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .button.secondary {
+      background: #f5f5f5;
+      color: #1a1a1a;
+    }
+    
+    .button.secondary:hover {
+      background: #e5e5e5;
+    }
+    
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 16px;
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 8px;
+      text-align: center;
+      font-size: 13px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      color: #666;
+    }
+    
+    .tab.active {
+      color: #6366f1;
+      border-bottom-color: #6366f1;
+      font-weight: 600;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .status.recording {
+      background: #dcfce7;
+      border-color: #86efac;
+      color: #166534;
+    }
+    
+    .status.error {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌍 Luma Translation</h1>
+  
+  <div class="tabs">
+    <div class="tab active" data-tab="main">Main</div>
+    <div class="tab" data-tab="settings">Settings</div>
+  </div>
+  
+  <!-- Main Tab -->
+  <div class="tab-content active" id="main-tab">
+    <div class="section">
+      <label for="targetLang">Your Language</label>
+      <select id="targetLang">
+        <option value="zh-CN">中文 (Chinese)</option>
+        <option value="es">Español (Spanish)</option>
+        <option value="hi">हिन्दी (Hindi)</option>
+        <option value="ar">العربية (Arabic)</option>
+        <option value="pt">Português (Portuguese)</option>
+        <option value="ja">日本語 (Japanese)</option>
+        <option value="ko">한국어 (Korean)</option>
+        <option value="fr">Français (French)</option>
+        <option value="de">Deutsch (German)</option>
+        <option value="ru">Русский (Russian)</option>
+        <option value="it">Italiano (Italian)</option>
+        <option value="nl">Nederlands (Dutch)</option>
+        <option value="pl">Polski (Polish)</option>
+      </select>
+    </div>
+    
+    <div class="section">
+      <div class="toggle">
+        <span class="toggle-label">Enable Subtitles</span>
+        <label class="switch">
+          <input type="checkbox" id="enableToggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+    
+    <button class="button" id="startStopBtn">Start Translation</button>
+    
+    <div class="status" id="status">
+      Ready to start
+    </div>
+    
+    <div class="hotkeys">
+      <div class="hotkeys-title">Keyboard Shortcuts</div>
+      <div class="hotkey">
+        <span>Replay last 10s</span>
+        <kbd>R</kbd>
+      </div>
+      <div class="hotkey">
+        <span>Toggle subtitles</span>
+        <kbd>T</kbd>
+      </div>
+      <div class="hotkey">
+        <span>Pause & repeat</span>
+        <kbd>P</kbd>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Settings Tab -->
+  <div class="tab-content" id="settings-tab">
+    <div class="api-section">
+      <div class="api-section-title">Speech-to-Text (Required)</div>
+      <label for="openaiApiKey">OpenAI API Key (Whisper)</label>
+      <input type="password" id="openaiApiKey" placeholder="sk-...">
+      <div class="api-help">
+        Get your key from <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a>
+        <br>Recommended for accurate lecture transcription
+      </div>
+    </div>
+    
+    <div class="api-section">
+      <div class="api-section-title">Translation (Choose One)</div>
+      <label for="deeplApiKey">DeepL API Key (Best Quality)</label>
+      <input type="password" id="deeplApiKey" placeholder="DeepL-Auth-Key...">
+      <div class="api-help">
+        Get your key from <a href="https://www.deepl.com/pro-api" target="_blank">DeepL</a>
+        <br>Excellent translation quality
+      </div>
+      
+      <label for="googleApiKey" style="margin-top: 12px; display: block;">Google Translate API Key</label>
+      <input type="password" id="googleApiKey" placeholder="AIza...">
+      <div class="api-help">
+        Get your key from <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud</a>
+        <br>Alternative to DeepL
+      </div>
+      
+      <div class="toggle" style="margin-top: 12px;">
+        <span class="toggle-label">Use Free Translation (Limited)</span>
+        <label class="switch">
+          <input type="checkbox" id="useFreeTranslation">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+    
+    <div class="api-section">
+      <div class="api-section-title">Advanced</div>
+      <div class="toggle">
+        <span class="toggle-label">Use Web Speech API (Fallback)</span>
+        <label class="switch">
+          <input type="checkbox" id="useWebSpeechAPI" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="api-help">
+        Less accurate but free. Only used if OpenAI key is not set.
+      </div>
+    </div>
+    
+    <button class="button secondary" id="saveSettingsBtn">Save Settings</button>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

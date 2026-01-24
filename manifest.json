@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "Luma - Live Lecture Translation",
+  "version": "1.0.0",
+  "description": "Real-time translation subtitles for lecture videos - AI lecture companion for international students",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabCapture",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://api.openai.com/*",
+    "https://api.deepl.com/*",
+    "https://translation.googleapis.com/*",
+    "https://speech.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["styles.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
