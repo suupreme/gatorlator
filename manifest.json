@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Luma - Live Lecture Translation",
+  "name": "Gatorlater",
   "version": "1.0.0",
-  "description": "Real-time translation subtitles for lecture videos - AI lecture companion for international students",
+  "description": "Real-time speech-to-speech translation - AI-powered live translation for lectures and videos",
   "permissions": [
     "activeTab",
     "storage",
@@ -12,9 +12,8 @@
   ],
   "host_permissions": [
     "https://api.openai.com/*",
-    "https://api.deepl.com/*",
-    "https://translation.googleapis.com/*",
-    "https://speech.googleapis.com/*"
+    "https://speaches.ai/*",
+    "<all_urls>"
   ],
   "background": {
     "service_worker": "background.js"

@@ -285,7 +285,7 @@
   </style>
 </head>
 <body>
-  <h1>🌍 Luma Translation</h1>
+  <h1>🐊 Gatorlater</h1>
   
   <div class="tabs">
     <div class="tab active" data-tab="main">Main</div>
@@ -349,51 +349,51 @@
   <!-- Settings Tab -->
   <div class="tab-content" id="settings-tab">
     <div class="api-section">
-      <div class="api-section-title">Speech-to-Text (Required)</div>
-      <label for="openaiApiKey">OpenAI API Key (Whisper)</label>
-      <input type="password" id="openaiApiKey" placeholder="sk-...">
+      <div class="api-section-title">Speaches.ai Configuration</div>
+      <label for="speachesApiKey">Speaches.ai API Key</label>
+      <input type="password" id="speachesApiKey" placeholder="Your API key...">
       <div class="api-help">
-        Get your key from <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a>
-        <br>Recommended for accurate lecture transcription
+        Get your key from <a href="https://speaches.ai" target="_blank">speaches.ai</a>
+        <br>Required for transcription, translation, and TTS
+      </div>
+      
+      <label for="speachesApiUrl" style="margin-top: 12px; display: block;">API Base URL (Optional)</label>
+      <input type="text" id="speachesApiUrl" placeholder="https://speaches.ai/v1">
+      <div class="api-help">
+        Leave empty to use default speaches.ai endpoint
+        <br>Or enter your custom Speaches.ai server URL
+      </div>
+      
+      <label for="model" style="margin-top: 12px; display: block;">Model (Optional)</label>
+      <input type="text" id="model" placeholder="gpt-4o-mini">
+      <div class="api-help">
+        Model to use for translation (default: gpt-4o-mini)
       </div>
     </div>
     
     <div class="api-section">
-      <div class="api-section-title">Translation (Choose One)</div>
-      <label for="deeplApiKey">DeepL API Key (Best Quality)</label>
-      <input type="password" id="deeplApiKey" placeholder="DeepL-Auth-Key...">
-      <div class="api-help">
-        Get your key from <a href="https://www.deepl.com/pro-api" target="_blank">DeepL</a>
-        <br>Excellent translation quality
-      </div>
-      
-      <label for="googleApiKey" style="margin-top: 12px; display: block;">Google Translate API Key</label>
-      <input type="password" id="googleApiKey" placeholder="AIza...">
-      <div class="api-help">
-        Get your key from <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud</a>
-        <br>Alternative to DeepL
-      </div>
-      
-      <div class="toggle" style="margin-top: 12px;">
-        <span class="toggle-label">Use Free Translation (Limited)</span>
-        <label class="switch">
-          <input type="checkbox" id="useFreeTranslation">
-          <span class="slider"></span>
-        </label>
-      </div>
-    </div>
-    
-    <div class="api-section">
-      <div class="api-section-title">Advanced</div>
+      <div class="api-section-title">Audio Output</div>
       <div class="toggle">
-        <span class="toggle-label">Use Web Speech API (Fallback)</span>
+        <span class="toggle-label">Enable Audio Output</span>
         <label class="switch">
-          <input type="checkbox" id="useWebSpeechAPI" checked>
+          <input type="checkbox" id="enableAudioOutput" checked>
           <span class="slider"></span>
         </label>
       </div>
       <div class="api-help">
-        Less accurate but free. Only used if OpenAI key is not set.
+        Play translated audio alongside subtitles using Speaches.ai TTS
+      </div>
+    </div>
+    
+    <div class="api-section">
+      <div class="api-section-title">Audio Mode</div>
+      <label for="audioMode">Default Audio Source</label>
+      <select id="audioMode" style="width: 100%; margin-top: 4px;">
+        <option value="tab">Tab Audio (Videos, Lectures)</option>
+        <option value="mic">Microphone (Conversations)</option>
+      </select>
+      <div class="api-help">
+        Choose default audio source. Can be changed via floating UI.
       </div>
     </div>
     

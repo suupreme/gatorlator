@@ -5,26 +5,184 @@
   let targetLanguage = 'zh-CN';
   let subtitleContainer = null;
   let currentSubtitle = null;
-  let video = null;
+  let floatingUI = null;
+  let audioMode = 'tab'; // 'tab' or 'mic'
   let isCapturing = false;
-  let subtitleQueue = [];
-  let lastSubtitleTime = 0;
-  
-  // Subtitle history for "repeat last sentence" feature
+  let audioContext = null;
+  let audioProcessor = null;
+  let mediaStream = null;
+  let audioPlaybackContext = null;
+  let lastAudioChunkTime = 0;
   let subtitleHistory = [];
   
   // Initialize
   function init() {
-    chrome.storage.sync.get(['targetLang', 'enabled'], function(result) {
+    chrome.storage.sync.get(['targetLang', 'enabled', 'audioMode'], function(result) {
       targetLanguage = result.targetLang || 'zh-CN';
       isEnabled = result.enabled !== undefined ? result.enabled : true;
+      audioMode = result.audioMode || 'tab';
       
       if (isEnabled) {
+        createFloatingUI();
         createSubtitleContainer();
-        findAndAttachToVideo();
         setupMessageListener();
       }
     });
+  }
+  
+  // Create modern floating UI overlay
+  function createFloatingUI() {
+    if (floatingUI) return;
+    
+    floatingUI = document.createElement('div');
+    floatingUI.id = 'gatorlater-floating-ui';
+    floatingUI.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999998;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    `;
+    
+    const pill = document.createElement('div');
+    pill.style.cssText = `
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 32px;
+      padding: 8px 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    `;
+    
+    // Audio mode toggle
+    const modeToggle = document.createElement('button');
+    modeToggle.id = 'gatorlater-mode-toggle';
+    modeToggle.innerHTML = audioMode === 'tab' ? '🎧' : '🎤';
+    modeToggle.title = audioMode === 'tab' ? 'Tab Audio' : 'Microphone';
+    modeToggle.style.cssText = `
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    `;
+    modeToggle.addEventListener('click', toggleAudioMode);
+    modeToggle.addEventListener('mouseenter', () => {
+      modeToggle.style.background = 'rgba(0, 0, 0, 0.05)';
+    });
+    modeToggle.addEventListener('mouseleave', () => {
+      modeToggle.style.background = 'transparent';
+    });
+    
+    // Status indicator
+    const status = document.createElement('div');
+    status.id = 'gatorlater-status';
+    status.textContent = 'Ready';
+    status.style.cssText = `
+      font-size: 13px;
+      color: #666;
+      font-weight: 500;
+    `;
+    
+    // Start/Stop button
+    const toggleBtn = document.createElement('button');
+    toggleBtn.id = 'gatorlater-toggle-btn';
+    toggleBtn.textContent = 'Start';
+    toggleBtn.style.cssText = `
+      background: #6366f1;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    `;
+    toggleBtn.addEventListener('click', toggleCapture);
+    toggleBtn.addEventListener('mouseenter', () => {
+      toggleBtn.style.background = '#4f46e5';
+    });
+    toggleBtn.addEventListener('mouseleave', () => {
+      toggleBtn.style.background = '#6366f1';
+    });
+    
+    // Language selector (compact)
+    const langSelect = document.createElement('select');
+    langSelect.id = 'gatorlater-lang-select';
+    langSelect.style.cssText = `
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      outline: none;
+    `;
+    
+    const languages = [
+      { code: 'zh-CN', name: '中文' },
+      { code: 'es', name: 'Español' },
+      { code: 'hi', name: 'हिन्दी' },
+      { code: 'ar', name: 'العربية' },
+      { code: 'pt', name: 'Português' },
+      { code: 'ja', name: '日本語' },
+      { code: 'ko', name: '한국어' },
+      { code: 'fr', name: 'Français' },
+      { code: 'de', name: 'Deutsch' },
+      { code: 'ru', name: 'Русский' }
+    ];
+    
+    languages.forEach(lang => {
+      const option = document.createElement('option');
+      option.value = lang.code;
+      option.textContent = lang.name;
+      if (lang.code === targetLanguage) option.selected = true;
+      langSelect.appendChild(option);
+    });
+    
+    langSelect.addEventListener('change', (e) => {
+      targetLanguage = e.target.value;
+      chrome.storage.sync.set({ targetLang: targetLanguage, targetLanguage: targetLanguage });
+      chrome.runtime.sendMessage({ action: 'updateLanguage', language: targetLanguage });
+    });
+    
+    pill.appendChild(modeToggle);
+    pill.appendChild(status);
+    pill.appendChild(langSelect);
+    pill.appendChild(toggleBtn);
+    floatingUI.appendChild(pill);
+    document.body.appendChild(floatingUI);
+  }
+  
+  // Toggle audio mode (tab/mic)
+  async function toggleAudioMode() {
+    audioMode = audioMode === 'tab' ? 'mic' : 'tab';
+    chrome.storage.sync.set({ audioMode: audioMode });
+    
+    const toggle = document.getElementById('gatorlater-mode-toggle');
+    toggle.innerHTML = audioMode === 'tab' ? '🎧' : '🎤';
+    toggle.title = audioMode === 'tab' ? 'Tab Audio' : 'Microphone';
+    
+    // Restart capture if currently recording
+    if (isCapturing) {
+      await stopCapture();
+      setTimeout(() => startCapture(), 500);
+    }
+  }
+  
+  // Toggle capture
+  async function toggleCapture() {
+    if (isCapturing) {
+      await stopCapture();
+    } else {
+      await startCapture();
+    }
   }
   
   // Listen for messages from background script
@@ -35,81 +193,198 @@
         sendResponse({ success: true });
       } else if (request.action === 'captureStarted') {
         isCapturing = true;
-        updateStatus('Recording audio...');
+        updateStatus('Recording...', 'recording');
+        const btn = document.getElementById('gatorlater-toggle-btn');
+        if (btn) btn.textContent = 'Stop';
       } else if (request.action === 'captureStopped') {
         isCapturing = false;
-        updateStatus('Stopped');
+        updateStatus('Stopped', '');
+        const btn = document.getElementById('gatorlater-toggle-btn');
+        if (btn) btn.textContent = 'Start';
       } else if (request.action === 'startAudioCapture') {
-        // Start audio capture from content script
-        captureTabAudio(request.streamId);
+        startAudioCapture(request.streamId, request.mode);
         sendResponse({ success: true });
       } else if (request.action === 'stopAudioCapture') {
-        // Stop audio capture
-        if (window.__lumaAudioCapture) {
-          if (window.__lumaAudioCapture.processor) {
-            window.__lumaAudioCapture.processor.disconnect();
-          }
-          if (window.__lumaAudioCapture.stream) {
-            window.__lumaAudioCapture.stream.getTracks().forEach(track => track.stop());
-          }
-          if (window.__lumaAudioCapture.audioContext) {
-            window.__lumaAudioCapture.audioContext.close();
-          }
-          window.__lumaAudioCapture = null;
-        }
+        stopAudioCapture();
         sendResponse({ success: true });
+      } else if (request.action === 'playAudio') {
+        playAudio(request.audioUrl, request.text);
+        sendResponse({ success: true });
+      } else if (request.action === 'updateLanguage') {
+        targetLanguage = request.language;
+        const select = document.getElementById('gatorlater-lang-select');
+        if (select) select.value = targetLanguage;
       }
       return true;
     });
   }
   
-  // Capture tab audio (runs in page context)
-  function captureTabAudio(streamId) {
-    navigator.mediaDevices.getUserMedia({
+  // Start audio capture with streaming chunks
+  function startAudioCapture(streamId, mode) {
+    audioMode = mode || audioMode;
+    
+    const constraints = audioMode === 'tab' ? {
       audio: {
         mandatory: {
           chromeMediaSource: 'tab',
           chromeMediaSourceId: streamId
         }
       }
-    }).then(stream => {
-      // Send audio data to background script
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const source = audioContext.createMediaStreamSource(stream);
-      const processor = audioContext.createScriptProcessor(4096, 1, 1);
-      
-      let audioChunks = [];
-      let lastSend = Date.now();
-      
-      processor.onaudioprocess = (e) => {
-        const inputData = e.inputBuffer.getChannelData(0);
-        audioChunks.push(new Float32Array(inputData));
+    } : {
+      audio: true
+    };
+    
+    navigator.mediaDevices.getUserMedia(constraints)
+      .then(stream => {
+        mediaStream = stream;
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioContext.createMediaStreamSource(stream);
         
-        // Send chunks every 5 seconds
-        if (Date.now() - lastSend >= 5000 && audioChunks.length > 0) {
-          const audioData = audioChunks.flat();
-          chrome.runtime.sendMessage({
-            action: 'audioChunk',
-            data: Array.from(audioData),
-            sampleRate: audioContext.sampleRate
-          });
-          audioChunks = [];
-          lastSend = Date.now();
-        }
-      };
-      
-      source.connect(processor);
-      processor.connect(audioContext.destination);
-      
+        // Use AudioWorklet or ScriptProcessor for real-time processing
+        // For now, using ScriptProcessor (deprecated but widely supported)
+        // In production, consider AudioWorklet for better performance
+        const bufferSize = 4096;
+        audioProcessor = audioContext.createScriptProcessor(bufferSize, 1, 1);
+        
+        let audioChunks = [];
+        let lastSend = Date.now();
+        const chunkInterval = 300; // Send chunks every 300ms for low latency
+        
+        audioProcessor.onaudioprocess = (e) => {
+          const inputData = e.inputBuffer.getChannelData(0);
+          audioChunks.push(new Float32Array(inputData));
+          
+          const now = Date.now();
+          if (now - lastSend >= chunkInterval && audioChunks.length > 0) {
+            // Combine chunks
+            const totalLength = audioChunks.reduce((sum, chunk) => sum + chunk.length, 0);
+            const combined = new Float32Array(totalLength);
+            let offset = 0;
+            for (const chunk of audioChunks) {
+              combined.set(chunk, offset);
+              offset += chunk.length;
+            }
+            
+            // Send to background script for processing
+            chrome.runtime.sendMessage({
+              action: 'audioChunk',
+              data: Array.from(combined),
+              sampleRate: audioContext.sampleRate,
+              isFinal: false // Streaming mode
+            });
+            
+            audioChunks = [];
+            lastSend = now;
+            lastAudioChunkTime = now;
+          }
+        };
+        
+        source.connect(audioProcessor);
+        audioProcessor.connect(audioContext.destination);
+        
+        // Send final chunk periodically (every 2 seconds) for better accuracy
+        const finalChunkInterval = setInterval(() => {
+          if (audioChunks.length > 0 && isCapturing) {
+            const totalLength = audioChunks.reduce((sum, chunk) => sum + chunk.length, 0);
+            const combined = new Float32Array(totalLength);
+            let offset = 0;
+            for (const chunk of audioChunks) {
+              combined.set(chunk, offset);
+              offset += chunk.length;
+            }
+            
+            chrome.runtime.sendMessage({
+              action: 'audioChunk',
+              data: Array.from(combined),
+              sampleRate: audioContext.sampleRate,
+              isFinal: true
+            });
+            
+            audioChunks = [];
+          }
+        }, 2000);
+        
       // Store reference for cleanup
-      window.__lumaAudioCapture = { stream, audioContext, processor };
-    }).catch(err => {
-      console.error('Error in audio capture:', err);
-      chrome.runtime.sendMessage({
-        action: 'captureError',
-        error: err.message
+      window.__gatorlaterAudioCapture = {
+          stream, 
+          audioContext, 
+          processor: audioProcessor,
+          interval: finalChunkInterval
+        };
+        
+      }).catch(err => {
+        console.error('Error in audio capture:', err);
+        chrome.runtime.sendMessage({
+          action: 'captureError',
+          error: err.message
+        });
+        updateStatus('Capture Error', 'error');
       });
-    });
+  }
+  
+  // Stop audio capture
+  function stopAudioCapture() {
+    if (window.__gatorlaterAudioCapture) {
+      if (window.__gatorlaterAudioCapture.interval) {
+        clearInterval(window.__gatorlaterAudioCapture.interval);
+      }
+      if (window.__gatorlaterAudioCapture.processor) {
+        window.__gatorlaterAudioCapture.processor.disconnect();
+      }
+      if (window.__gatorlaterAudioCapture.stream) {
+        window.__gatorlaterAudioCapture.stream.getTracks().forEach(track => track.stop());
+      }
+      if (window.__gatorlaterAudioCapture.audioContext) {
+        window.__gatorlaterAudioCapture.audioContext.close();
+      }
+      window.__gatorlaterAudioCapture = null;
+    }
+    
+    if (audioProcessor) {
+      audioProcessor.disconnect();
+      audioProcessor = null;
+    }
+    
+    if (audioContext) {
+      audioContext.close();
+      audioContext = null;
+    }
+    
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(track => track.stop());
+      mediaStream = null;
+    }
+  }
+  
+  // Start capture
+  async function startCapture() {
+    try {
+      const response = await chrome.runtime.sendMessage({ 
+        action: 'startCapture',
+        mode: audioMode
+      });
+      if (response && response.success) {
+        isCapturing = true;
+        updateStatus('Starting...', '');
+      } else {
+        updateStatus('Failed to start', 'error');
+      }
+    } catch (error) {
+      console.error('Error starting capture:', error);
+      updateStatus('Error: ' + error.message, 'error');
+    }
+  }
+  
+  // Stop capture
+  async function stopCapture() {
+    try {
+      await chrome.runtime.sendMessage({ action: 'stopCapture' });
+      stopAudioCapture();
+      isCapturing = false;
+      updateStatus('Stopped', '');
+    } catch (error) {
+      console.error('Error stopping capture:', error);
+    }
   }
   
   // Create subtitle container
@@ -117,10 +392,10 @@
     if (subtitleContainer) return;
     
     subtitleContainer = document.createElement('div');
-    subtitleContainer.id = 'luma-subtitle-container';
+    subtitleContainer.id = 'gatorlater-subtitle-container';
     subtitleContainer.style.cssText = `
       position: fixed;
-      bottom: 80px;
+      bottom: 100px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 999999;
@@ -130,69 +405,27 @@
     `;
     
     currentSubtitle = document.createElement('div');
-    currentSubtitle.id = 'luma-subtitle';
+    currentSubtitle.id = 'gatorlater-subtitle';
     currentSubtitle.style.cssText = `
       background: rgba(0, 0, 0, 0.85);
       color: white;
-      padding: 12px 24px;
+      padding: 16px 28px;
       border-radius: 24px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       font-size: 18px;
       font-weight: 500;
-      line-height: 1.5;
+      line-height: 1.6;
       letter-spacing: 0.01em;
       backdrop-filter: blur(10px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       opacity: 0;
       transition: opacity 0.3s ease;
-      max-width: 800px;
+      max-width: 900px;
+      word-wrap: break-word;
     `;
     
     subtitleContainer.appendChild(currentSubtitle);
     document.body.appendChild(subtitleContainer);
-  }
-  
-  // Find video element
-  function findAndAttachToVideo() {
-    video = document.querySelector('video');
-    
-    if (video) {
-      attachKeyboardShortcuts();
-      // Auto-start capture if enabled
-      if (isEnabled) {
-        startCapture();
-      }
-    } else {
-      // Retry if video not found (for dynamic pages)
-      setTimeout(findAndAttachToVideo, 1000);
-    }
-  }
-  
-  // Start audio capture
-  async function startCapture() {
-    try {
-      const response = await chrome.runtime.sendMessage({ action: 'startCapture' });
-      if (response && response.success) {
-        isCapturing = true;
-        updateStatus('Recording...');
-      } else {
-        updateStatus('Failed to start capture');
-      }
-    } catch (error) {
-      console.error('Error starting capture:', error);
-      updateStatus('Error: ' + error.message);
-    }
-  }
-  
-  // Stop audio capture
-  async function stopCapture() {
-    try {
-      await chrome.runtime.sendMessage({ action: 'stopCapture' });
-      isCapturing = false;
-      updateStatus('Stopped');
-    } catch (error) {
-      console.error('Error stopping capture:', error);
-    }
   }
   
   // Display subtitle with fade effect
@@ -214,120 +447,91 @@
     // Update subtitle display
     currentSubtitle.textContent = translatedText;
     currentSubtitle.style.opacity = '1';
-    lastSubtitleTime = Date.now();
     
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-      if (Date.now() - lastSubtitleTime >= 5000) {
-        currentSubtitle.style.opacity = '0';
-      }
+    // Auto-hide after 5 seconds of no new subtitles
+    clearTimeout(window.__gatorlaterSubtitleTimeout);
+    window.__gatorlaterSubtitleTimeout = setTimeout(() => {
+      currentSubtitle.style.opacity = '0';
     }, 5000);
   }
   
+  // Play audio from ElevenLabs
+  function playAudio(audioUrl, text) {
+    if (!audioUrl) return;
+    
+    // Initialize audio context for playback if needed
+    if (!audioPlaybackContext) {
+      audioPlaybackContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    // Create audio element for simple playback
+    const audio = new Audio(audioUrl);
+    audio.volume = 0.8; // Slightly lower than original audio
+    
+    audio.play().catch(err => {
+      console.error('Error playing audio:', err);
+    });
+    
+    // Clean up blob URL after playback
+    audio.addEventListener('ended', () => {
+      if (audioUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    });
+  }
+  
   // Update status indicator
-  function updateStatus(message) {
-    // Could add a status indicator in the UI
-    console.log('Status:', message);
+  function updateStatus(message, type) {
+    const status = document.getElementById('gatorlater-status');
+    if (status) {
+      status.textContent = message;
+      status.style.color = type === 'recording' ? '#10b981' : 
+                          type === 'error' ? '#ef4444' : '#666';
+    }
   }
   
   // Keyboard shortcuts
   function attachKeyboardShortcuts() {
     document.addEventListener('keydown', function(e) {
-      if (!video) return;
-      
       // Ignore if typing in input fields
       if (document.activeElement.tagName === 'INPUT' || 
-          document.activeElement.tagName === 'TEXTAREA') {
+          document.activeElement.tagName === 'TEXTAREA' ||
+          document.activeElement.isContentEditable) {
         return;
       }
       
-      // R - Replay last 10 seconds
-      if (e.key === 'r' || e.key === 'R') {
-        e.preventDefault();
-        video.currentTime = Math.max(0, video.currentTime - 10);
-        showFeedback('⏪ -10s');
-      }
-      
-      // T - Toggle subtitles
+      // T - Toggle subtitles/capture
       if (e.key === 't' || e.key === 'T') {
         e.preventDefault();
-        isEnabled = !isEnabled;
-        
-        if (subtitleContainer) {
-          subtitleContainer.style.display = isEnabled ? 'block' : 'none';
-        }
-        
-        if (isEnabled && !isCapturing) {
-          startCapture();
-        } else if (!isEnabled && isCapturing) {
-          stopCapture();
-        }
-        
-        chrome.storage.sync.set({ enabled: isEnabled });
-        showFeedback(isEnabled ? 'Subtitles ON' : 'Subtitles OFF');
+        toggleCapture();
       }
       
-      // P - Pause and show last subtitle (repeat last sentence)
+      // M - Toggle audio mode
+      if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault();
+        toggleAudioMode();
+      }
+      
+      // P - Show last subtitle
       if (e.key === 'p' || e.key === 'P') {
         e.preventDefault();
-        if (video && !video.paused) {
-          video.pause();
-          if (subtitleHistory.length > 0) {
-            const last = subtitleHistory[subtitleHistory.length - 1];
-            displaySubtitle(last.translated, last.original);
-            showFeedback('Last sentence repeated');
-          }
-        } else if (video && video.paused) {
-          video.play();
+        if (subtitleHistory.length > 0) {
+          const last = subtitleHistory[subtitleHistory.length - 1];
+          displaySubtitle(last.translated, last.original);
         }
-      }
-      
-      // G - Show glossary/context (future feature)
-      if (e.key === 'g' || e.key === 'G') {
-        e.preventDefault();
-        showGlossary();
       }
     });
   }
   
-  // Show visual feedback
-  function showFeedback(message) {
-    const feedback = document.createElement('div');
-    feedback.textContent = message;
-    feedback.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.85);
-      color: white;
-      padding: 16px 32px;
-      border-radius: 16px;
-      font-size: 24px;
-      font-weight: 600;
-      z-index: 999999;
-      pointer-events: none;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    `;
-    document.body.appendChild(feedback);
-    
-    setTimeout(() => {
-      feedback.style.opacity = '0';
-      feedback.style.transition = 'opacity 0.3s';
-      setTimeout(() => feedback.remove(), 300);
-    }, 800);
-  }
+  // Initialize keyboard shortcuts
+  attachKeyboardShortcuts();
   
-  // Show glossary (placeholder for future feature)
-  function showGlossary() {
-    showFeedback('Glossary feature coming soon');
-  }
-  
-  // Listen for messages from popup (already handled in setupMessageListener, but keep for compatibility)
+  // Listen for messages from popup
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === 'updateLanguage') {
       targetLanguage = request.language;
-      chrome.storage.sync.set({ targetLang: targetLanguage });
+      const select = document.getElementById('gatorlater-lang-select');
+      if (select) select.value = targetLanguage;
     } else if (request.action === 'toggleSubtitles') {
       isEnabled = request.enabled;
       if (subtitleContainer) {
@@ -338,7 +542,6 @@
       } else if (!isEnabled && isCapturing) {
         stopCapture();
       }
-      chrome.storage.sync.set({ enabled: isEnabled });
     }
     sendResponse({ success: true });
     return true;

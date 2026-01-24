@@ -1,4 +1,4 @@
-// Popup script for Luma Translation Extension
+// Popup script for Gatorlater Extension
 
 document.addEventListener('DOMContentLoaded', function() {
   // Tab switching
@@ -39,6 +39,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
+  // Audio mode selector
+  const audioModeSelect = document.getElementById('audioMode');
+  if (audioModeSelect) {
+    audioModeSelect.addEventListener('change', function() {
+      chrome.storage.sync.set({ audioMode: this.value });
+    });
+  }
+  
   // Start/Stop button
   const startStopBtn = document.getElementById('startStopBtn');
   startStopBtn.addEventListener('click', async function() {
@@ -49,8 +57,10 @@ document.addEventListener('DOMContentLoaded', function() {
       try {
         const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
         if (tabs[0]) {
+          const settings = await getStoredSettings();
           const response = await chrome.runtime.sendMessage({ 
-            action: 'startCapture' 
+            action: 'startCapture',
+            mode: settings.audioMode || 'tab'
           });
           
           if (response && response.success) {
@@ -96,53 +106,80 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadSettings() {
   chrome.storage.sync.get([
     'targetLang',
+    'targetLanguage',
     'enabled',
-    'openaiApiKey',
-    'deeplApiKey',
-    'googleApiKey',
-    'useWebSpeechAPI',
-    'useFreeTranslation'
+    'speachesApiKey',
+    'speachesApiUrl',
+    'model',
+    'enableAudioOutput',
+    'audioMode'
   ], function(result) {
     // Main settings
     if (result.targetLang) {
-      document.getElementById('targetLang').value = result.targetLang;
+      const langSelect = document.getElementById('targetLang');
+      if (langSelect) langSelect.value = result.targetLang;
     }
     if (result.targetLanguage) {
-      document.getElementById('targetLang').value = result.targetLanguage;
+      const langSelect = document.getElementById('targetLang');
+      if (langSelect) langSelect.value = result.targetLanguage;
     }
     if (result.enabled !== undefined) {
-      document.getElementById('enableToggle').checked = result.enabled;
+      const toggle = document.getElementById('enableToggle');
+      if (toggle) toggle.checked = result.enabled;
     }
     
-    // API keys (masked display)
-    if (result.openaiApiKey) {
-      const masked = maskApiKey(result.openaiApiKey);
-      document.getElementById('openaiApiKey').value = result.openaiApiKey;
-      document.getElementById('openaiApiKey').placeholder = masked;
-    }
-    if (result.deeplApiKey) {
-      document.getElementById('deeplApiKey').value = result.deeplApiKey;
-      document.getElementById('deeplApiKey').placeholder = maskApiKey(result.deeplApiKey);
-    }
-    if (result.googleApiKey) {
-      document.getElementById('googleApiKey').value = result.googleApiKey;
-      document.getElementById('googleApiKey').placeholder = maskApiKey(result.googleApiKey);
+    // Audio mode
+    if (result.audioMode) {
+      const modeSelect = document.getElementById('audioMode');
+      if (modeSelect) modeSelect.value = result.audioMode;
     }
     
-    // Advanced settings
-    document.getElementById('useWebSpeechAPI').checked = result.useWebSpeechAPI !== false;
-    document.getElementById('useFreeTranslation').checked = result.useFreeTranslation || false;
+    // Speaches.ai settings
+    if (result.speachesApiKey) {
+      const input = document.getElementById('speachesApiKey');
+      if (input) {
+        input.value = result.speachesApiKey;
+        input.placeholder = maskApiKey(result.speachesApiKey);
+      }
+    }
+    if (result.speachesApiUrl) {
+      const input = document.getElementById('speachesApiUrl');
+      if (input) {
+        input.value = result.speachesApiUrl;
+      }
+    }
+    if (result.model) {
+      const input = document.getElementById('model');
+      if (input) {
+        input.value = result.model;
+      }
+    }
+    
+    // Toggles
+    const audioOutputToggle = document.getElementById('enableAudioOutput');
+    if (audioOutputToggle) {
+      audioOutputToggle.checked = result.enableAudioOutput !== false;
+    }
+  });
+}
+
+// Helper to get stored settings
+function getStoredSettings() {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get(['audioMode'], (result) => {
+      resolve(result);
+    });
   });
 }
 
 // Save settings to storage
 function saveSettings() {
   const settings = {
-    openaiApiKey: document.getElementById('openaiApiKey').value.trim(),
-    deeplApiKey: document.getElementById('deeplApiKey').value.trim(),
-    googleApiKey: document.getElementById('googleApiKey').value.trim(),
-    useWebSpeechAPI: document.getElementById('useWebSpeechAPI').checked,
-    useFreeTranslation: document.getElementById('useFreeTranslation').checked
+    speachesApiKey: document.getElementById('speachesApiKey')?.value.trim() || '',
+    speachesApiUrl: document.getElementById('speachesApiUrl')?.value.trim() || 'https://speaches.ai/v1',
+    model: document.getElementById('model')?.value.trim() || 'gpt-4o-mini',
+    enableAudioOutput: document.getElementById('enableAudioOutput')?.checked !== false,
+    audioMode: document.getElementById('audioMode')?.value || 'tab'
   };
   
   chrome.storage.sync.set(settings, function() {

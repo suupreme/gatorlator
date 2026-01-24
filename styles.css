@@ -1,11 +1,11 @@
 /* Additional styles injected into pages */
-#luma-subtitle-container {
+#gatorlater-subtitle-container {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 /* INSTALLATION INSTRUCTIONS:
 
-1. Save these files in a folder called "luma-extension":
+1. Save these files in a folder called "gatorlater-extension":
    - manifest.json
    - popup.html
    - popup.js
@@ -22,7 +22,7 @@
    - Open Chrome and go to chrome://extensions/
    - Enable "Developer mode" (top right toggle)
    - Click "Load unpacked"
-   - Select your "luma-extension" folder
+   - Select your "gatorlater-extension" folder
    - The extension will appear in your toolbar!
 
 4. Usage:
