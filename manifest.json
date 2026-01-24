@@ -3,6 +3,11 @@
   "name": "Gatorlater",
   "version": "1.0.0",
   "description": "Real-time speech-to-speech translation - AI-powered live translation for lectures and videos",
+  "icons": {
+    "16": "gatorlater.png",
+    "48": "gatorlater.png",
+    "128": "gatorlater.png"
+  },
   "permissions": [
     "activeTab",
     "storage",
@@ -19,7 +24,12 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "gatorlater.png",
+      "48": "gatorlater.png",
+      "128": "gatorlater.png"
+    }
   },
   "content_scripts": [
     {
