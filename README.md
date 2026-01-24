@@ -1,4 +1,4 @@
-# 🌍 Luma - Live Lecture Translation
+# 🌍 Gatorlater - Live Lecture Translation
 
 **AI lecture companion for international students** - Real-time translation subtitles for lecture videos, Zoom classes, and online courses.
 
@@ -17,7 +17,7 @@
 ### Step 1: Download the Extension
 
 1. Download or clone this repository
-2. Extract the files to a folder (e.g., `luma-extension`)
+2. Extract the files to a folder (e.g., `gatorlater-extension`)
 
 ### Step 2: Create Icon Files (Optional)
 
@@ -33,7 +33,7 @@ You can use any image editor or download placeholder icons. The extension will w
 1. Open Chrome and navigate to `chrome://extensions/`
 2. Enable **Developer mode** (toggle in top right)
 3. Click **Load unpacked**
-4. Select your `luma-extension` folder
+4. Select your `gatorlater-extension` folder
 5. The extension icon should appear in your toolbar!
 
 ## Setup & Configuration
@@ -64,7 +64,7 @@ You can use any image editor or download placeholder icons. The extension will w
 
 ### 2. Configure the Extension
 
-1. Click the Luma extension icon in your toolbar
+1. Click the Gatorlater extension icon in your toolbar
 2. Go to the **Settings** tab
 3. Enter your API keys:
    - OpenAI API Key (for speech-to-text)
@@ -181,7 +181,7 @@ The extension maintains context across translations:
 ### Project Structure
 
 ```
-luma-extension/
+gatorlater-extension/
 ├── manifest.json       # Extension configuration
 ├── background.js       # Service worker (audio processing)
 ├── content.js          # Content script (subtitle display)
