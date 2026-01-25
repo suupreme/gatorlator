@@ -11,7 +11,7 @@ let isPlayingAudio = false;
 
 // Initialize on extension install/startup
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('Gatorlater Extension installed');
+  console.log('Gatorlator Extension installed');
 });
 
 // Listen for messages from popup/content scripts
