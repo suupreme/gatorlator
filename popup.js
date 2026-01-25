@@ -50,38 +50,40 @@ document.addEventListener("DOMContentLoaded", function () {
   function updateUI() {
     if (isTranslationEnabled) {
       toggleButton.textContent = "translating...";
+      toggleButton.classList.add("recording");
       languageSelect.value = targetLanguage;
     } else {
       toggleButton.textContent = "start translation";
+      toggleButton.classList.remove("recording");
       languageSelect.value = targetLanguage;
     }
   }
 
   // Language selection
-  targetLangSelect.addEventListener("change", (event) => {
+  languageSelect.addEventListener("change", (event) => {
     targetLanguage = event.target.value;
     chrome.storage.sync.set({ targetLanguage: targetLanguage });
 
     updateUI();
   });
-  
 
   function updateActiveTab() {
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    if (tabs[0]) {
-      chrome.tabs.sendMessage(tabs[0].id, {
-        action: "updateLanguage",
-        language: document.getElementById("targetLang").value,
-      });
-
-      chrome.storage.sync.get(["enabled"], function (result) {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      if (tabs[0]) {
         chrome.tabs.sendMessage(tabs[0].id, {
-          action: "toggleSubtitles",
-          enabled: result.enabled !== false,
+          action: "updateLanguage",
+          language: document.getElementById("targetLang").value,
         });
-      });
-    }
-  });
+
+        chrome.storage.sync.get(["enabled"], function (result) {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            action: "toggleSubtitles",
+            enabled: result.enabled !== false,
+          });
+        });
+      }
+    });
+  }
 
   // [cc] button - replaces Enable Subtitles toggle
   const ccBtn = document.getElementById("ccBtn");
@@ -249,10 +251,6 @@ function saveSettings() {
   chrome.storage.sync.set(settings, function () {
     console.log("Settings saved");
   });
-}
-
-// Update active tab with current settings
-
 }
 
 // Check current recording status
