@@ -95,23 +95,51 @@
         .control-panel {
             background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(20px);
-            padding: 35px;
+            padding: 28px 35px;
             border-radius: 30px;
             border: 1px solid rgba(255,255,255,0.5);
             box-shadow: 0 20px 40px rgba(0,0,0,0.08);
             margin-bottom: 50px;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: fit-content;
         }
 
-        .lang-select {
-            padding: 14px 20px;
+        .lang-showcase {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 14px;
             font-family: inherit;
             font-size: 1rem;
             border-radius: 12px;
             border: 1px solid rgba(0,0,0,0.1);
-            margin-right: 15px;
             background: white;
-            outline: none;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            width: fit-content;
+            min-width: 1px;
+        }
+
+        .lang-showcase .lang-label {
+            color: #243d31;
+            font-weight: 600;
+            margin-right: 6px;
+            white-space: nowrap;
+        }
+
+        .lang-showcase .lang-rotating {
+            font-weight: bold;
+            color: #0021A5;
+            min-width: 10ch;
+            display: inline-block;
+            transition: opacity 0.4s ease;
+        }
+
+        .lang-showcase .lang-rotating.fade-out {
+            opacity: 0;
         }
 
         /* SEXY GRADIENT BUTTON */
@@ -173,7 +201,7 @@
 <body>
 
     <div class="logo-container">
-        <img src="gatorlater.png" alt="Logo" class="floating-logo">
+        <img src="gatorlator.png" alt="Logo" class="floating-logo">
     </div>
     
     <div class="hero-content">
@@ -185,20 +213,11 @@
         </p>
         
         <div class="control-panel">
-            <select class="lang-select">
-                <option>Arabic</option>
-                <option>Bengali</option>
-                <option>Mandarin Chinese</option>
-                <option>French</option>
-                <option>German</option>
-                <option>Hindi</option>
-                <option>Japanese</option>
-                <option>Korean</option>
-                <option>Portuguese</option>
-                <option>Russian</option>
-                <option>Spanish</option>
-            </select>
             <a href="https://github.com/suupreme/gatorlator/archive/refs/heads/main.zip" class="btn-download">💾 Download Extension</a>
+            <div class="lang-showcase">
+                <span class="lang-label">Supports:</span>
+                <span class="lang-rotating" id="lang-rotating">Arabic</span>
+            </div>
         </div>
     </div>
 
@@ -208,8 +227,26 @@
             <a href="https://github.com/suupreme/gatorlator/issues" target="_blank">Report Issues</a>
             <a href="https://github.com/suupreme/gatorlator#readme" target="_blank">Documentation</a>
         </div>
-        <p class="footer-credit">Built with 🐊 at the University of Florida &copy; 2026</p>
+        <p class="footer-credit">Built for SwampHacks at the University of Florida &copy; 2026</p>
     </footer>
 
+    <script>
+        (function () {
+            var languages = [
+                'Arabic', 'Bengali', 'Mandarin', 'French', 'German',
+                'Hindi', 'Japanese', 'Korean', 'Portuguese', 'Russian', 'Spanish'
+            ];
+            var el = document.getElementById('lang-rotating');
+            var i = 0;
+            setInterval(function () {
+                el.classList.add('fade-out');
+                setTimeout(function () {
+                    i = (i + 1) % languages.length;
+                    el.textContent = languages[i];
+                    el.classList.remove('fade-out');
+                }, 400);
+            }, 3000);
+        })();
+    </script>
 </body>
 </html>
