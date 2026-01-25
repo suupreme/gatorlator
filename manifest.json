@@ -18,7 +18,8 @@
   "host_permissions": [
     "https://api.elevenlabs.io/*",
     "https://api.openai.com/*",
-    "https://speaches.ai/*",
+    "https://generativelanguage.googleapis.com/*",
+    "wss://api.deepgram.com/v1/listen?model=nova-2&smart_format=true",
     "<all_urls>"
   ],
   "background": {
