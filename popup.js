@@ -234,11 +234,14 @@ async function checkStatus() {
 
 // Update status display
 function updateStatus(message, type) {
+  const statusCard = document.getElementById('status-card');
   const statusEl = document.getElementById('status');
   statusEl.textContent = message;
   statusEl.className = 'status';
-  if (type) {
-    statusEl.classList.add(type);
+  if (type === 'recording') {
+    statusCard.classList.add('recording');
+  } else {
+    statusCard.classList.remove('recording');
   }
 }
 
