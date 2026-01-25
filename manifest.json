@@ -17,8 +17,6 @@
     "scripting"
   ],
   "host_permissions": [
-    "http://localhost:8000/*", //need to change to whatever local speaches docker server thing is
-    "http://127.0.0.1:8000/*", // this too
     "https://api.elevenlabs.io/*",
     "https://api.openai.com/*",
     "https://speaches.ai/*",
