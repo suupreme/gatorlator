@@ -26,5 +26,11 @@
       "48": "gatorlator.png",
       "128": "gatorlator.png"
     }
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["scripts/content.js"]
+    }
+  ]
 }

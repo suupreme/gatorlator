@@ -10,17 +10,16 @@ const ELEVENLABS_API_KEY = "";
 const VOICE_ID = "Wl3O9lmFSMgGFTTwuS6f";
 
 const ELEVENLABS_VOICES = {
-  ar: "VwC51uc4PUblWEJSPzeo", // Arabic
-  "zh-HK": "n4xdXKggn5lFcXFYE4TA", // Cantonese
-  "zh-CN": "cHDwXsKG0qHMNLIjOusN", // Mandarin
-  fr: "FvmvwvObRqIHojkEGh5N", // French
-  de: "g1jpii0iyvtRs8fqXsd1", // German
-  hi: "gMRjEAcWCvjoyqIfZqlp", // Hindi
-  ja: "fUjY9K2nAIwlALOwSiwc", // Japanese
-  ko: "IAETYMYM3nJvjnlkVTKI", // Korean
-  pt: "Qrdut83w0Cr152Yb4Xn3", // Portuguese
-  ru: "MWyJiWDobXN8FX3CJTdE", // Russian
-  es: "bsEDAkNZWaEolZ7vEeVJ", // Spanish
+  ar: "UgBBYS2sOqTuMpoF3BR0", // Arabic
+  yue: "WuLq5z7nEcrhppO0ZQJw", // Cantonese
+  zh: "WuLq5z7nEcrhppO0ZQJw", // Mandarin
+  fr: "UgBBYS2sOqTuMpoF3BR0", // French
+  de: "UgBBYS2sOqTuMpoF3BR0", // German
+  hi: "ymDCYd8puC7gYjxIamPt", // Hindi
+  ko: "UgBBYS2sOqTuMpoF3BR0", // Korean
+  pt: "UgBBYS2sOqTuMpoF3BR0", // Portuguese
+  ru: "ymDCYd8puC7gYjxIamPt", // Russian
+  es: "UgBBYS2sOqTuMpoF3BR0", // Spanish
 };
 
 let targetLanguage;
@@ -97,7 +96,7 @@ async function startStreaming(streamId) {
 function startDeepgram(stream) {
   // Use 'token' subprotocol to pass the key securely in a browser environment
   socket = new WebSocket(
-    "wss://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&endpointing=10",
+    "wss://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&endpointing=5&interim_results=true&utterance_end_ms=3000",
     ["token", DEEPGRAM_API_KEY],
   );
 
@@ -144,8 +143,18 @@ function startDeepgram(stream) {
           processQueue();
         }
       } else {
-        // This is a "Partial" (interim) result - do nothing or update a "live" UI
+        // This is a "Partial" (interim) result - translate and send to content script
         console.log("Live Preview:", transcript);
+        // Translate interim transcript
+        const interimResult = await translateText(transcript, targetLanguage);
+        const translatedInterimText = interimResult.translations[0].text;
+
+        // Send to background.js, which will then send to content.js
+        chrome.runtime.sendMessage({
+          target: "background", // Explicitly target background script
+          type: "INTERIM_SUBTITLE",
+          text: translatedInterimText,
+        });
       }
     }
   };

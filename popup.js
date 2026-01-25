@@ -80,16 +80,16 @@ document.addEventListener("DOMContentLoaded", function () {
   function updateActiveTab() {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       if (tabs[0]) {
+        // Send message to update language (existing functionality)
         chrome.tabs.sendMessage(tabs[0].id, {
           action: "updateLanguage",
           language: document.getElementById("targetLang").value,
         });
 
-        chrome.storage.sync.get(["enabled"], function (result) {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            action: "toggleSubtitles",
-            enabled: result.enabled !== false,
-          });
+        // Send message to toggle subtitles based on saved state
+        chrome.tabs.sendMessage(tabs[0].id, {
+          type: "TOGGLE_SUBTITLES", // New message type for content script
+          enabled: subtitlesEnabled, // Pass the current state of subtitlesEnabled
         });
       }
     });

@@ -17,6 +17,17 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   else if (request.action === "transcribeAudio") {
     startDeepgram(request.data);
   }
+  // FLOW 3: Route Interim Subtitles from Offscreen to Content Script
+  else if (request.type === "INTERIM_SUBTITLE") {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs.length > 0) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          type: "UPDATE_SUBTITLE", // Message type for content script
+          text: request.text,
+        });
+      }
+    });
+  }
 });
 //---------------------------------------------
 //TAB AUDIO CAPTURE - (using Offscreen Document)
