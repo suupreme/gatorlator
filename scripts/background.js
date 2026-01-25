@@ -7,6 +7,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   // FLOW 1 : Capture Tab Audio (Current Website -> DeepGram)
   if (request.action === "startCapture") {
     await startCapture();
+    console.log("starting capture");
     sendResponse({ status: "success", message: "Audio capture started." });
   } else if (request.action === "stopCapture") {
     await stopCapture();
@@ -25,10 +26,12 @@ async function startCapture() {
     // If an offscreen document already exists, it means a capture might be active.
     // Stop any existing capture before starting a new one to prevent "active stream" error.
     if (await chrome.offscreen.hasDocument()) {
-      console.log("Existing offscreen document found. Stopping previous capture...");
+      console.log(
+        "Existing offscreen document found. Stopping previous capture...",
+      );
       await stopCapture();
       // Give a small delay to ensure resources are fully released
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     // Create the Offscreen document if it doesn't already exist
@@ -52,7 +55,8 @@ async function startCapture() {
     });
 
     //Send the stream ID to the Offscreen document
-    await chrome.runtime.sendMessage({ // Await the response
+    await chrome.runtime.sendMessage({
+      // Await the response
       target: "offscreen",
       type: "START_RECORDING",
       streamId: streamId,
@@ -71,7 +75,8 @@ async function stopCapture() {
   try {
     // Only send message if offscreen document exists
     if (await chrome.offscreen.hasDocument()) {
-      const response = await chrome.runtime.sendMessage({ // Await the response
+      const response = await chrome.runtime.sendMessage({
+        // Await the response
         target: "offscreen",
         type: "STOP_RECORDING",
       });

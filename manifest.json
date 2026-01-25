@@ -8,7 +8,7 @@
     "48": "gatorlator.png",
     "128": "gatorlator.png"
   },
-  "permissions": ["activeTab", "storage", "tabCapture", "tabs", "offscreen"],
+  "permissions": ["activeTab", "storage", "tabCapture", "offscreen"],
   "host_permissions": [
     "https://api-free.deepl.com/*",
     "https://api.elevenlabs.io/*",

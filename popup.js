@@ -1,11 +1,26 @@
-// Popup script for Gatorlator Extension
-
-// let isTranslating = false;
-
 document.addEventListener("DOMContentLoaded", function () {
   const toggleButton = document.getElementById("toggleTranslation");
+  const languageSelect = document.getElementById("targetLang");
+
+  let isTranslationEnabled = false;
+  let targetLanguage = languageSelect.value;
+
   // Load saved settings
   // loadSettings();
+
+  chrome.storage.sync.get(
+    ["isTranslationEnabled", "targetLanguage"],
+    (data) => {
+      if (data.isTranslationEnabled !== undefined) {
+        isTranslationEnabled = data.isTranslationEnabled;
+      }
+      if (data.targetLanguage) {
+        targetLanguage = data.targetLanguage;
+        languageSelect.value = targetLanguage;
+      }
+      updateUI();
+    },
+  );
 
   toggleButton.addEventListener("click", () => {
     isTranslationEnabled = !isTranslationEnabled;
@@ -32,19 +47,39 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   });
 
+  function updateUI() {
+    if (isTranslationEnabled) {
+      toggleButton.textContent = "translating...";
+      languageSelect.value = targetLanguage;
+    } else {
+      toggleButton.textContent = "start translation";
+      languageSelect.value = targetLanguage;
+    }
+  }
+
   // Language selection
-  const targetLangSelect = document.getElementById("targetLang");
-  targetLangSelect.addEventListener("change", function () {
-    if (this.value) {
-      chrome.storage.sync.set(
-        {
-          targetLang: this.value,
-          targetLanguage: this.value,
-        },
-        function () {
-          updateActiveTab();
-        },
-      );
+  targetLangSelect.addEventListener("change", (event) => {
+    targetLanguage = event.target.value;
+    chrome.storage.sync.set({ targetLanguage: targetLanguage });
+
+    updateUI();
+  });
+  
+
+  function updateActiveTab() {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    if (tabs[0]) {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: "updateLanguage",
+        language: document.getElementById("targetLang").value,
+      });
+
+      chrome.storage.sync.get(["enabled"], function (result) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          action: "toggleSubtitles",
+          enabled: result.enabled !== false,
+        });
+      });
     }
   });
 
@@ -217,22 +252,7 @@ function saveSettings() {
 }
 
 // Update active tab with current settings
-function updateActiveTab() {
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    if (tabs[0]) {
-      chrome.tabs.sendMessage(tabs[0].id, {
-        action: "updateLanguage",
-        language: document.getElementById("targetLang").value,
-      });
 
-      chrome.storage.sync.get(["enabled"], function (result) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          action: "toggleSubtitles",
-          enabled: result.enabled !== false,
-        });
-      });
-    }
-  });
 }
 
 // Check current recording status
