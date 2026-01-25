@@ -1,10 +1,6 @@
-// Architect Note: No API keys here! They stay in your secure .env and services files.
 const DEEPGRAM_API_KEY = "";
 const DEEPL_API_KEY = "";
 const ELEVENLABS_API_KEY = "";
-
-// Testing Defaults
-//
 
 // https://elevenlabs.io/app/agents/voice-library?voiceId=Wl3O9lmFSMgGFTTwuS6f
 const VOICE_ID = "Wl3O9lmFSMgGFTTwuS6f";

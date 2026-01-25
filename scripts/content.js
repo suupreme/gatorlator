@@ -1,9 +1,7 @@
-// scripts/content.js
-// This script runs in the context of every web page.
-
-// Function to create or update the subtitle display
 function updateSubtitle(text) {
-  let subtitleContainer = document.getElementById("gatorlator-subtitle-container");
+  let subtitleContainer = document.getElementById(
+    "gatorlator-subtitle-container",
+  );
 
   if (!subtitleContainer) {
     subtitleContainer = document.createElement("div");
@@ -37,13 +35,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     updateSubtitle(message.text);
     sendResponse({ status: "success", message: "Subtitle updated" });
   } else if (message.type === "CLEAR_SUBTITLE") {
-    const subtitleContainer = document.getElementById("gatorlator-subtitle-container");
+    const subtitleContainer = document.getElementById(
+      "gatorlator-subtitle-container",
+    );
     if (subtitleContainer) {
       subtitleContainer.textContent = "";
     }
     sendResponse({ status: "success", message: "Subtitle cleared" });
   } else if (message.type === "TOGGLE_SUBTITLES") {
-    const subtitleContainer = document.getElementById("gatorlator-subtitle-container");
+    const subtitleContainer = document.getElementById(
+      "gatorlator-subtitle-container",
+    );
     if (subtitleContainer) {
       subtitleContainer.style.display = message.enabled ? "block" : "none";
     }
