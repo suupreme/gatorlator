@@ -1,4 +1,4 @@
-// Popup script for Gatorlater Extension
+// Popup script for Gatorlator Extension
 
 document.addEventListener('DOMContentLoaded', function() {
   // Tab switching
