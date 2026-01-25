@@ -5,6 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gatorlator - Real-Time Audio Translation</title>
     <style>
+
+    To fix the logo size once and for all, we need to address two things: the CSS width/height and the container height. If the logo's container is too large, it will look like the size isn't changing even if the image shrinks.
+
+I have updated the code to use a strictly defined size and removed any conflicting SVG styles that might have been overriding your PNG.
+
+1. Updated CSS (Add to your <style> block)
+Copy and paste this specific block. I have added !important to force the browser to prioritize these values and changed the font to Courier New (the web-standard version of "Courier Sans") with the #a8d5ba color.
+
+CSS
+/* FORCE LOGO SIZE & COLOR */
+.floating-logo {
+    /* Change these numbers to exactly what you want */
+    width: 50px !important; 
+    height: auto !important;
+    
+    /* Applying the color tint */
+    background-color: #a8d5ba;
+    border-radius: 15px;
+    padding: 5px;
+
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+    animation: gator-bob 3s ease-in-out infinite;
+    z-index: 10;
+}
+
+/* Fix the container height so the layout stays tight */
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+    height: 100px !important; /* Matches the smaller logo */
+}
+
+/* Global Font and Theme Color */
+body, h1, h2, h3, p, span, button, select {
+    font-family: "Courier New", Courier, monospace !important;
+}
+
+.hero-title {
+    color: #a8d5ba !important;
+    font-size: 3.5rem;
+}
+        
         * {
             margin: 0;
             padding: 0;
@@ -604,9 +648,9 @@
             <img src="gatorlater.png" alt="Gatorlater Logo" class="floating-logo">
         </div>
         ```
-        
-        <h1>Gatorlator</h1>
-        <p class="tagline">Transform any browser audio into your native language with AI-powered real-time translation</p>
+        <div class="hero-content">
+        <h1 class="hero-title">Gatorlator</h1>
+        </div>
     </section>
 
     <!-- Interactive Demo Section -->
