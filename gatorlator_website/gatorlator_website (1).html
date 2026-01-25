@@ -567,6 +567,31 @@
                 padding: 1.5rem;
             }
         }
+              ```css
+.floating-logo {
+    width: 150px; /* Adjust size as needed */
+    height: auto;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+    animation: gator-bob 3s ease-in-out infinite;
+    z-index: 10;
+}
+
+@keyframes gator-bob {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+    perspective: 1000px;
+}
     </style>
 </head>
 <body>
@@ -576,21 +601,11 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="logo-container">
-            <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-                <defs>
-                    <linearGradient id="gatorGreen" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#00843D;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#005A27;stop-opacity:1" />
-                    </linearGradient>
-                </defs>
-                <circle cx="100" cy="100" r="85" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
-                <path d="M 50 100 Q 45 95, 50 90 L 70 88 Q 75 85, 80 88 L 140 90 Q 145 92, 148 97 L 155 100 Q 158 103, 155 106 L 150 108 Q 145 110, 140 108 L 80 110 Q 75 112, 70 110 L 50 108 Q 45 105, 50 100 Z" fill="url(#gatorGreen)"/>
-                <circle cx="135" cy="95" r="4" fill="white"/>
-                <circle cx="136" cy="94" r="1.5" fill="#0021A5"/>
-                <path d="M 25 100 L 35 100" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
-                <path d="M 170 100 L 175 100" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
-            </svg>
+            <img src="gatorlater.png" alt="Gatorlater Logo" class="floating-logo">
         </div>
+                <div class="hero-content">
+        <h1 class="hero-title">Gatorlator</h1>
+        ```
         
         <h1>Gatorlator</h1>
         <p class="tagline">Transform any browser audio into your native language with AI-powered real-time translation</p>
