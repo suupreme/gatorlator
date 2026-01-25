@@ -13,47 +13,299 @@
     body {
       width: 320px;
       padding: 20px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #fafafa;
+      font-family: 'Courier New', Courier, monospace;
+      background: #f0f9f4;
+      color: #2d5a3d;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
     }
     
     h1 {
       font-size: 18px;
-      font-weight: 600;
-      color: #1a1a1a;
-      margin-bottom: 16px;
+      font-weight: 700;
+      color: #2d5a3d;
+      margin: 0;
+      text-transform: lowercase;
+    }
+    
+    .utility-cluster {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .utility-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid #a8d5ba;
+      border-radius: 6px;
+      background: #e8f5ed;
+      color: #2d5a3d;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    
+    .utility-btn:hover {
+      background: #d4eadf;
+      border-color: #8fc4a5;
+    }
+    
+    .utility-btn.active {
+      background: #b8e0c8;
+      border-color: #7ab896;
     }
     
     .section {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
     
     label {
       display: block;
       font-size: 13px;
-      font-weight: 500;
-      color: #666;
+      font-weight: 400;
+      color: #4a7c5a;
       margin-bottom: 8px;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    
+    .select-wrapper {
+      position: relative;
+    }
+    
+    .select-wrapper::after {
+      content: '▼';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #4a7c5a;
+      font-size: 10px;
     }
     
     select {
       width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #ddd;
+      padding: 10px 32px 10px 12px;
+      border: 1px solid #a8d5ba;
       border-radius: 8px;
       font-size: 14px;
-      background: white;
+      background: #ffffff;
       cursor: pointer;
       transition: border-color 0.2s;
+      font-family: 'Courier New', Courier, monospace;
+      color: #2d5a3d;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
     }
     
     select:hover {
-      border-color: #999;
+      border-color: #8fc4a5;
     }
     
     select:focus {
       outline: none;
-      border-color: #6366f1;
+      border-color: #7ab896;
+    }
+    
+    select option {
+      color: #2d5a3d;
+      background: #ffffff;
+    }
+    
+    select:invalid {
+      color: #7ab896;
+    }
+    
+    select:valid {
+      color: #2d5a3d;
+    }
+    
+    .button {
+      width: 100%;
+      padding: 12px;
+      background: #b8e0c8;
+      color: #2d5a3d;
+      border: 1px solid #a8d5ba;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 400;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 0;
+      font-family: 'Courier New', Courier, monospace;
+      text-transform: lowercase;
+    }
+    
+    .button:hover {
+      background: #a8d5ba;
+      border-color: #8fc4a5;
+    }
+    
+    .button:disabled {
+      background: #d4eadf;
+      color: #7ab896;
+      cursor: not-allowed;
+      border-color: #c4e0d4;
+    }
+    
+    .button.recording {
+      background: #f5d4d4;
+      border-color: #e8b8b8;
+      color: #8b4a4a;
+    }
+    
+    .button.recording:hover {
+      background: #e8b8b8;
+      border-color: #d4a0a0;
+    }
+    
+    .button.error {
+      background: #f5d4d4;
+      border-color: #e8b8b8;
+      color: #8b4a4a;
+    }
+    
+    .button.secondary {
+      background: #e8f5ed;
+      color: #2d5a3d;
+      border-color: #d4eadf;
+    }
+    
+    .button.secondary:hover {
+      background: #d4eadf;
+      border-color: #c4e0d4;
+    }
+    
+    /* Settings Panel */
+    .settings-panel {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(45, 90, 61, 0.3);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .settings-panel.active {
+      display: flex;
+    }
+    
+    .settings-content {
+      background: #f0f9f4;
+      border: 1px solid #a8d5ba;
+      border-radius: 12px;
+      padding: 20px;
+      width: 90%;
+      max-width: 300px;
+      max-height: 80vh;
+      overflow-y: auto;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    
+    .settings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .settings-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #2d5a3d;
+      text-transform: lowercase;
+    }
+    
+    .close-btn {
+      width: 28px;
+      height: 28px;
+      border: 1px solid #a8d5ba;
+      border-radius: 6px;
+      background: #e8f5ed;
+      color: #2d5a3d;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    
+    .close-btn:hover {
+      background: #d4eadf;
+      border-color: #8fc4a5;
+    }
+    
+    .api-section {
+      background: #ffffff;
+      border: 1px solid #a8d5ba;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .api-section-title {
+      font-size: 11px;
+      font-weight: 400;
+      color: #4a7c5a;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: 'Courier New', Courier, monospace;
+      text-align: center;
+    }
+    
+    .api-help {
+      font-size: 11px;
+      color: #7ab896;
+      margin-top: 4px;
+      line-height: 1.4;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    
+    .api-help a {
+      color: #5a9a6a;
+      text-decoration: none;
+    }
+    
+    .api-help a:hover {
+      text-decoration: underline;
+    }
+    
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #a8d5ba;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: 'Courier New', Courier, monospace;
+      margin-top: 4px;
+      background: #ffffff;
+      color: #2d5a3d;
+    }
+    
+    input[type="text"]:focus, input[type="password"]:focus {
+      outline: none;
+      border-color: #7ab896;
     }
     
     .toggle {
@@ -61,15 +313,16 @@
       align-items: center;
       justify-content: space-between;
       padding: 12px;
-      background: white;
+      background: #ffffff;
       border-radius: 8px;
-      border: 1px solid #ddd;
+      border: 1px solid #a8d5ba;
     }
     
     .toggle-label {
       font-size: 14px;
-      font-weight: 500;
-      color: #1a1a1a;
+      font-weight: 400;
+      color: #2d5a3d;
+      font-family: 'Courier New', Courier, monospace;
     }
     
     .switch {
@@ -91,215 +344,126 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: #ccc;
+      background-color: #d4eadf;
+      border: 1px solid #a8d5ba;
       border-radius: 26px;
-      transition: 0.3s;
+      transition: all 0.3s;
     }
     
     .slider:before {
       position: absolute;
       content: "";
-      height: 20px;
-      width: 20px;
+      height: 18px;
+      width: 18px;
       left: 3px;
       bottom: 3px;
-      background-color: white;
+      background-color: #ffffff;
+      border: 1px solid #a8d5ba;
       border-radius: 50%;
-      transition: 0.3s;
+      transition: all 0.3s;
+      box-shadow: 0 1px 3px rgba(45, 90, 61, 0.2);
     }
     
     input:checked + .slider {
-      background-color: #6366f1;
+      background-color: #b8e0c8;
+      border-color: #8fc4a5;
     }
     
     input:checked + .slider:before {
       transform: translateX(22px);
+      background-color: #ffffff;
     }
     
-    .status {
-      margin-top: 16px;
-      padding: 12px;
-      background: #f0f9ff;
-      border: 1px solid #bae6fd;
-      border-radius: 8px;
-      font-size: 13px;
-      color: #0369a1;
-      text-align: center;
-    }
-    
-    .hotkeys {
-      margin-top: 20px;
-      padding: 12px;
-      background: white;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-    }
-    
-    .hotkeys-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: #666;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .hotkey {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      padding: 4px 0;
-      color: #1a1a1a;
-    }
-    
-    .hotkey kbd {
-      background: #f5f5f5;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #666;
-    }
-    
-    input[type="text"], input[type="password"] {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 13px;
-      font-family: monospace;
-      margin-top: 4px;
-    }
-    
-    input[type="text"]:focus, input[type="password"]:focus {
-      outline: none;
-      border-color: #6366f1;
-    }
-    
-    .api-section {
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
-    
-    .api-section-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: #666;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .api-help {
-      font-size: 11px;
-      color: #999;
-      margin-top: 4px;
-      line-height: 1.4;
-    }
-    
-    .api-help a {
-      color: #6366f1;
-      text-decoration: none;
-    }
-    
-    .api-help a:hover {
-      text-decoration: underline;
-    }
-    
-    .button {
-      width: 100%;
-      padding: 10px;
-      background: #6366f1;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.2s;
-      margin-top: 12px;
-    }
-    
-    .button:hover {
-      background: #4f46e5;
-    }
-    
-    .button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-    
-    .button.secondary {
-      background: #f5f5f5;
-      color: #1a1a1a;
-    }
-    
-    .button.secondary:hover {
-      background: #e5e5e5;
-    }
-    
-    .tabs {
-      display: flex;
-      border-bottom: 1px solid #ddd;
-      margin-bottom: 16px;
-    }
-    
-    .tab {
-      flex: 1;
-      padding: 8px;
-      text-align: center;
-      font-size: 13px;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      color: #666;
-    }
-    
-    .tab.active {
-      color: #6366f1;
-      border-bottom-color: #6366f1;
-      font-weight: 600;
-    }
-    
-    .tab-content {
+    /* Help Panel */
+    .help-panel {
       display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(45, 90, 61, 0.3);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
     }
     
-    .tab-content.active {
-      display: block;
+    .help-panel.active {
+      display: flex;
     }
     
-    .status.recording {
-      background: #dcfce7;
-      border-color: #86efac;
-      color: #166534;
+    .help-content {
+      background: #f0f9f4;
+      border: 1px solid #a8d5ba;
+      border-radius: 12px;
+      padding: 20px;
+      width: 90%;
+      max-width: 300px;
+      max-height: 80vh;
+      overflow-y: auto;
+      font-family: 'Courier New', Courier, monospace;
     }
     
-    .status.error {
-      background: #fef2f2;
-      border-color: #fecaca;
-      color: #991b1b;
+    .help-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #2d5a3d;
+      margin: 0;
+      text-transform: lowercase;
+    }
+    
+    .help-text {
+      font-size: 13px;
+      color: #4a7c5a;
+      line-height: 1.6;
+    }
+    
+    /* Custom Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #e8f5ed;
+      border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #b8e0c8;
+      border-radius: 5px;
+      border: 1px solid #a8d5ba;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #a8d5ba;
+    }
+    
+    /* Firefox scrollbar */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #b8e0c8 #e8f5ed;
     }
   </style>
 </head>
 <body>
-  <h1>Gatorlator</h1>
-  
-  <div class="tabs">
-    <div class="tab active" data-tab="main">Main</div>
-    <div class="tab" data-tab="settings">Settings</div>
+  <div class="header">
+    <h1>gatorlator</h1>
+    <div class="utility-cluster">
+      <button class="utility-btn" id="ccBtn" title="Toggle Subtitles">cc</button>
+      <button class="utility-btn" id="helpBtn" title="Help">[!]</button>
+      <button class="utility-btn" id="settingsBtn" title="Settings">⚙</button>
+    </div>
   </div>
   
-  <!-- Main Tab -->
-  <div class="tab-content active" id="main-tab">
-    <div class="section">
-      <label for="targetLang">Your Language</label>
-      <select id="targetLang">
+  <div class="section">
+    <label for="targetLang">your language</label>
+    <div class="select-wrapper">
+      <select id="targetLang" required>
+        <option value="" disabled selected>select language</option>
         <option value="ar">العربية (Arabic)</option>
         <option value="bn">বাংলা (Bengali)</option>
-        <option value="zh-CN">中文 (Chinese)</option>
+        <option value="zh-CN">中文 (Mandarin Chinese)</option>
         <option value="fr">Français (French)</option>
         <option value="de">Deutsch (German)</option>
         <option value="hi">हिन्दी (Hindi)</option>
@@ -310,80 +474,74 @@
         <option value="es">Español (Spanish)</option>
       </select>
     </div>
-    
-    <div class="section">
-      <div class="toggle">
-        <span class="toggle-label">Enable Subtitles</span>
-        <label class="switch">
-          <input type="checkbox" id="enableToggle" checked>
-          <span class="slider"></span>
-        </label>
+  </div>
+  
+  <button class="button" id="startStopBtn">start translation</button>
+  
+  <!-- Settings Panel -->
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-content">
+      <div class="settings-header">
+        <div class="settings-title">settings</div>
+        <button class="close-btn" id="closeSettingsBtn">×</button>
       </div>
-    </div>
-    
-    <button class="button" id="startStopBtn">Start Translation</button>
-    
-    <div class="status" id="status">
-      Ready to start
-    </div>
-    
-    <div class="hotkeys">
-      <div class="hotkeys-title">Keyboard Shortcuts</div>
-      <div class="hotkey">
-        <span>Replay last 10s</span>
-        <kbd>R</kbd>
+      
+      <div class="api-section">
+        <div class="api-section-title">Deepgram Configuration</div>
+        <label for="deepgramApiKey">Deepgram API Key</label>
+        <input type="password" id="deepgramApiKey" placeholder="Your API key...">
+        <div class="api-help">
+          Get your key from <a href="https://deepgram.com/" target="_blank">Deepgram</a>
+          <br>Required for transcription, translation, and TTS
+        </div>
+        
+        <label for="deepgramApiUrl" style="margin-top: 12px; display: block;">API Base URL (Optional)</label>
+        <input type="text" id="deepgramApiUrl" placeholder="https://deepgram.com/">
+        <div class="api-help">
+          Leave empty to use default Deepgram endpoint
+          <br>Or enter your custom Deepgram server URL
+        </div>
+        
+        <label for="model" style="margin-top: 12px; display: block;">Model (Optional)</label>
+        <input type="text" id="model" placeholder="gpt-4o-mini">
+        <div class="api-help">
+          Model to use for translation (default: gpt-4o-mini)
+        </div>
       </div>
-      <div class="hotkey">
-        <span>Toggle subtitles</span>
-        <kbd>T</kbd>
+      
+      <div class="api-section">
+        <div class="api-section-title">Audio Output</div>
+        <div class="toggle">
+          <span class="toggle-label">Enable Audio Output</span>
+          <label class="switch">
+            <input type="checkbox" id="enableAudioOutput" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="api-help">
+          Play translated audio alongside subtitles using Deepgram TTS
+        </div>
       </div>
-      <div class="hotkey">
-        <span>Pause & repeat</span>
-        <kbd>P</kbd>
-      </div>
+      
+      <button class="button secondary" id="saveSettingsBtn">Save Settings</button>
     </div>
   </div>
   
-  <!-- Settings Tab -->
-  <div class="tab-content" id="settings-tab">
-    <div class="api-section">
-      <div class="api-section-title">Speaches.ai Configuration</div>
-      <label for="speachesApiKey">Speaches.ai API Key</label>
-      <input type="password" id="speachesApiKey" placeholder="Your API key...">
-      <div class="api-help">
-        Get your key from <a href="https://speaches.ai" target="_blank">speaches.ai</a>
-        <br>Required for transcription, translation, and TTS
+  <!-- Help Panel -->
+  <div class="help-panel" id="helpPanel">
+    <div class="help-content">
+      <div class="settings-header">
+        <div class="help-title">about</div>
+        <button class="close-btn" id="closeHelpBtn">×</button>
       </div>
-      
-      <label for="speachesApiUrl" style="margin-top: 12px; display: block;">API Base URL (Optional)</label>
-      <input type="text" id="speachesApiUrl" placeholder="https://speaches.ai/v1">
-      <div class="api-help">
-        Leave empty to use default speaches.ai endpoint
-        <br>Or enter your custom Speaches.ai server URL
-      </div>
-      
-      <label for="model" style="margin-top: 12px; display: block;">Model (Optional)</label>
-      <input type="text" id="model" placeholder="gpt-4o-mini">
-      <div class="api-help">
-        Model to use for translation (default: gpt-4o-mini)
+      <div class="help-text" style="margin-top: 16px;">
+        gatorlator provides real-time translation for audio content.
+        <br><br>
+        Select your target language and click "start translation" to begin.
+        <br><br>
+        Use the cc button to toggle subtitle display on or off. Subtitles are optional and do not affect translation functionality.
       </div>
     </div>
-    
-    <div class="api-section">
-      <div class="api-section-title">Audio Output</div>
-      <div class="toggle">
-        <span class="toggle-label">Enable Audio Output</span>
-        <label class="switch">
-          <input type="checkbox" id="enableAudioOutput" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-      <div class="api-help">
-        Play translated audio alongside subtitles using Speaches.ai TTS
-      </div>
-    </div>
-    
-    <button class="button secondary" id="saveSettingsBtn">Save Settings</button>
   </div>
   
   <script src="popup.js"></script>

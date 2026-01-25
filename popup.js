@@ -1,58 +1,106 @@
 // Popup script for Gatorlator Extension
 
+let isTranslating = false;
+
 document.addEventListener('DOMContentLoaded', function() {
-  // Tab switching
-  const tabs = document.querySelectorAll('.tab');
-  const tabContents = document.querySelectorAll('.tab-content');
-  
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      const targetTab = tab.dataset.tab;
-      
-      tabs.forEach(t => t.classList.remove('active'));
-      tabContents.forEach(tc => tc.classList.remove('active'));
-      
-      tab.classList.add('active');
-      document.getElementById(`${targetTab}-tab`).classList.add('active');
-    });
-  });
-  
   // Load saved settings
   loadSettings();
   
   // Language selection
   const targetLangSelect = document.getElementById('targetLang');
   targetLangSelect.addEventListener('change', function() {
-    chrome.storage.sync.set({ 
-      targetLang: this.value,
-      targetLanguage: this.value 
-    }, function() {
+    if (this.value) {
+      chrome.storage.sync.set({ 
+        targetLang: this.value,
+        targetLanguage: this.value 
+      }, function() {
+        updateActiveTab();
+      });
+    }
+  });
+  
+  // [cc] button - replaces Enable Subtitles toggle
+  const ccBtn = document.getElementById('ccBtn');
+  let subtitlesEnabled = true; // Default to enabled
+  
+  // Load saved subtitle state
+  chrome.storage.sync.get(['enabled'], function(result) {
+    if (result.enabled !== undefined) {
+      subtitlesEnabled = result.enabled;
+    }
+    updateCcButton();
+  });
+  
+  ccBtn.addEventListener('click', function() {
+    subtitlesEnabled = !subtitlesEnabled;
+    chrome.storage.sync.set({ enabled: subtitlesEnabled }, function() {
+      updateCcButton();
       updateActiveTab();
     });
   });
   
-  // Enable/disable toggle
-  const enableToggle = document.getElementById('enableToggle');
-  enableToggle.addEventListener('change', function() {
-    chrome.storage.sync.set({ enabled: this.checked }, function() {
-      updateActiveTab();
-    });
-  });
-  
-  // Audio mode selector
-  const audioModeSelect = document.getElementById('audioMode');
-  if (audioModeSelect) {
-    audioModeSelect.addEventListener('change', function() {
-      chrome.storage.sync.set({ audioMode: this.value });
-    });
+  function updateCcButton() {
+    if (subtitlesEnabled) {
+      ccBtn.classList.add('active');
+    } else {
+      ccBtn.classList.remove('active');
+    }
   }
+  
+  // Settings button
+  const settingsBtn = document.getElementById('settingsBtn');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+  
+  settingsBtn.addEventListener('click', function() {
+    settingsPanel.classList.add('active');
+  });
+  
+  closeSettingsBtn.addEventListener('click', function() {
+    settingsPanel.classList.remove('active');
+  });
+  
+  // Close settings panel when clicking outside
+  settingsPanel.addEventListener('click', function(e) {
+    if (e.target === settingsPanel) {
+      settingsPanel.classList.remove('active');
+    }
+  });
+  
+  // Help button
+  const helpBtn = document.getElementById('helpBtn');
+  const helpPanel = document.getElementById('helpPanel');
+  const closeHelpBtn = document.getElementById('closeHelpBtn');
+  
+  helpBtn.addEventListener('click', function() {
+    helpPanel.classList.add('active');
+  });
+  
+  closeHelpBtn.addEventListener('click', function() {
+    helpPanel.classList.remove('active');
+  });
+  
+  // Close help panel when clicking outside
+  helpPanel.addEventListener('click', function(e) {
+    if (e.target === helpPanel) {
+      helpPanel.classList.remove('active');
+    }
+  });
   
   // Start/Stop button
   const startStopBtn = document.getElementById('startStopBtn');
+  
   startStopBtn.addEventListener('click', async function() {
-    const isEnabled = enableToggle.checked;
-    
-    if (isEnabled) {
+    if (isTranslating) {
+      // Stop capture
+      try {
+        await chrome.runtime.sendMessage({ action: 'stopCapture' });
+        isTranslating = false;
+        updateButtonStatus('start translation', '');
+      } catch (error) {
+        updateButtonStatus('start translation - Error: ' + error.message, 'error');
+      }
+    } else {
       // Start capture
       try {
         const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -64,25 +112,14 @@ document.addEventListener('DOMContentLoaded', function() {
           });
           
           if (response && response.success) {
-            startStopBtn.textContent = 'Stop Translation';
-            enableToggle.disabled = true;
-            updateStatus('Recording audio...', 'recording');
+            isTranslating = true;
+            updateButtonStatus('stop translating', 'recording');
           } else {
-            updateStatus('Failed to start: ' + (response?.error || 'Unknown error'), 'error');
+            updateButtonStatus('start translation - Error: ' + (response?.error || 'Unknown error'), 'error');
           }
         }
       } catch (error) {
-        updateStatus('Error: ' + error.message, 'error');
-      }
-    } else {
-      // Stop capture
-      try {
-        await chrome.runtime.sendMessage({ action: 'stopCapture' });
-        startStopBtn.textContent = 'Start Translation';
-        enableToggle.disabled = false;
-        updateStatus('Stopped', '');
-      } catch (error) {
-        updateStatus('Error: ' + error.message, 'error');
+        updateButtonStatus('start translation - Error: ' + error.message, 'error');
       }
     }
   });
@@ -115,23 +152,16 @@ function loadSettings() {
     'audioMode'
   ], function(result) {
     // Main settings
-    if (result.targetLang) {
-      const langSelect = document.getElementById('targetLang');
-      if (langSelect) langSelect.value = result.targetLang;
-    }
-    if (result.targetLanguage) {
-      const langSelect = document.getElementById('targetLang');
-      if (langSelect) langSelect.value = result.targetLanguage;
-    }
-    if (result.enabled !== undefined) {
-      const toggle = document.getElementById('enableToggle');
-      if (toggle) toggle.checked = result.enabled;
-    }
-    
-    // Audio mode
-    if (result.audioMode) {
-      const modeSelect = document.getElementById('audioMode');
-      if (modeSelect) modeSelect.value = result.audioMode;
+    const langSelect = document.getElementById('targetLang');
+    if (langSelect) {
+      if (result.targetLang && result.targetLang !== '') {
+        langSelect.value = result.targetLang;
+      } else if (result.targetLanguage && result.targetLanguage !== '') {
+        langSelect.value = result.targetLanguage;
+      } else {
+        // Reset to placeholder if no valid language is saved
+        langSelect.value = '';
+      }
     }
     
     // Speaches.ai settings
@@ -196,9 +226,11 @@ function updateActiveTab() {
         language: document.getElementById('targetLang').value
       });
       
-      chrome.tabs.sendMessage(tabs[0].id, {
-        action: 'toggleSubtitles',
-        enabled: document.getElementById('enableToggle').checked
+      chrome.storage.sync.get(['enabled'], function(result) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          action: 'toggleSubtitles',
+          enabled: result.enabled !== false
+        });
       });
     }
   });
@@ -210,21 +242,13 @@ async function checkStatus() {
     const response = await chrome.runtime.sendMessage({ action: 'getStatus' });
     if (response) {
       const startStopBtn = document.getElementById('startStopBtn');
-      const enableToggle = document.getElementById('enableToggle');
       
       if (response.isRecording) {
-        startStopBtn.textContent = 'Stop Translation';
-        enableToggle.disabled = true;
-        updateStatus('Recording audio...', 'recording');
+        isTranslating = true;
+        updateButtonStatus('stop translating', 'recording');
       } else {
-        startStopBtn.textContent = 'Start Translation';
-        enableToggle.disabled = false;
-        
-        if (response.hasStream) {
-          updateStatus('Ready', '');
-        } else {
-          updateStatus('Click "Start Translation" to begin', '');
-        }
+        isTranslating = false;
+        updateButtonStatus('start translation', '');
       }
     }
   } catch (error) {
@@ -232,16 +256,15 @@ async function checkStatus() {
   }
 }
 
-// Update status display
-function updateStatus(message, type) {
-  const statusCard = document.getElementById('status-card');
-  const statusEl = document.getElementById('status');
-  statusEl.textContent = message;
-  statusEl.className = 'status';
+// Update button status (integrated status messages)
+function updateButtonStatus(message, type) {
+  const startStopBtn = document.getElementById('startStopBtn');
+  startStopBtn.textContent = message;
+  startStopBtn.className = 'button';
   if (type === 'recording') {
-    statusCard.classList.add('recording');
-  } else {
-    statusCard.classList.remove('recording');
+    startStopBtn.classList.add('recording');
+  } else if (type === 'error') {
+    startStopBtn.classList.add('error');
   }
 }
 
