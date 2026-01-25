@@ -1,253 +1,82 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gatorlator - Real-Time Audio Translation</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* Moving Gradient Background & Global Font */
-        body {
-            font-family: 'Courier New', Courier, monospace !important;
-            background: linear-gradient(-45deg, #a8d5ba, #8dbba0, #7aa68d, #a8d5ba);
-            background-size: 400% 400%;
-            animation: gradientBG 12s ease infinite;
-            color: #1d1d1f;
-            overflow-x: hidden;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* Logo Styling */
-        .logo-container {
-            margin-top: 60px;
-            margin-bottom: 20px;
-            height: 140px; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .floating-logo {
-            width: 180px !important; 
-            height: 180px !important;
-            object-fit: contain;
-            filter: drop-shadow(0 12px 24px rgba(0,0,0,0.15));
-            animation: gator-bob 3s ease-in-out infinite;
-        }
-
-        @keyframes gator-bob {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(3deg); }
-        }
-
-        /* Content Layout */
-        .hero-content {
-            text-align: center;
-            max-width: 800px;
-            padding: 20px;
-            flex-grow: 1;
-        }
-
-        /* Color-split Title */
-        .hero-title {
-            font-size: 5rem; /* Slightly larger for impact */
-            margin-bottom: 10px;
-            font-weight: 900;
-            letter-spacing: -3px;
-            text-transform: lowercase;
-        }
-
-        .text-gator {
-            color: #0021A5; /* Deep UF Blue */
-            text-shadow: 2px 2px 0px rgba(255,255,255,0.3);
-        }
-
-        /* THE SEXIER ORANGE */
-        .text-lator {
-            color: #FF4A00; /* Vivid Electric Orange */
-            text-shadow: 0 0 15px rgba(255, 74, 0, 0.4), 2px 2px 0px rgba(255,255,255,0.3);
-            filter: saturate(1.2);
-        }
-
-        .hero-subtitle {
-            font-size: 1.2rem;
-            line-height: 1.6;
-            color: #243d31; 
-            margin-bottom: 40px;
-            font-weight: 600;
-        }
-
-        /* Control Panel */
-        .control-panel {
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(20px);
-            padding: 28px 35px;
-            border-radius: 30px;
-            border: 1px solid rgba(255,255,255,0.5);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-            margin-bottom: 50px;
-            margin-left: auto;
-            margin-right: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            width: fit-content;
-        }
-
-        .lang-showcase {
-            display: inline-flex;
-            align-items: center;
-            padding: 10px 14px;
-            font-family: inherit;
-            font-size: 1rem;
-            border-radius: 12px;
-            border: 1px solid rgba(0,0,0,0.1);
-            background: white;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-            width: fit-content;
-            min-width: 1px;
-        }
-
-        .lang-showcase .lang-label {
-            color: #243d31;
-            font-weight: 600;
-            margin-right: 6px;
-            white-space: nowrap;
-        }
-
-        .lang-showcase .lang-rotating {
-            font-weight: bold;
-            color: #0021A5;
-            min-width: 10ch;
-            display: inline-block;
-            transition: opacity 0.4s ease;
-        }
-
-        .lang-showcase .lang-rotating.fade-out {
-            opacity: 0;
-        }
-
-        /* SEXY GRADIENT BUTTON */
-        .btn-download {
-            display: inline-block;
-            text-decoration: none;
-            padding: 14px 30px;
-            font-family: inherit;
-            font-weight: bold;
-            font-size: 1.1rem;
-            background: linear-gradient(135deg, #FF4A00 0%, #FF7000 100%);
-            color: white;
-            border-radius: 12px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 20px rgba(255, 74, 0, 0.2);
-        }
-
-        .btn-download:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(255, 74, 0, 0.4);
-            filter: brightness(1.1);
-        }
-
-        footer {
-            width: 100%;
-            padding: 40px 20px;
-            background: rgba(255, 255, 255, 0.15);
-            text-align: center;
-            margin-top: auto;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-bottom: 20px;
-        }
-
-        .footer-links a {
-            color: #0021A5;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .footer-links a:hover {
-            color: #FF4A00;
-            transform: scale(1.1);
-        }
-
-        .footer-credit {
-            font-size: 0.9rem;
-            color: #243d31;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-
+    <link href="./styles.css" rel="stylesheet" />
+  </head>
+  <body>
     <div class="logo-container">
-        <img src="gatorlator.png" alt="Logo" class="floating-logo">
+      <img src="gatorlator.png" alt="Logo" class="floating-logo" />
     </div>
-    
+
     <div class="hero-content">
-        <h1 class="hero-title">
-            <span class="text-gator">gator</span><span class="text-lator">lator</span>
-        </h1>
-        <p class="hero-subtitle">
-            Real-time audio translation for global learning. <br> Breaking language barriers, one lecture at a time.
-        </p>
-        
-        <div class="control-panel">
-            <a href="https://github.com/suupreme/gatorlator/archive/refs/heads/main.zip" class="btn-download">💾 Download Extension</a>
-            <div class="lang-showcase">
-                <span class="lang-label">Supports:</span>
-                <span class="lang-rotating" id="lang-rotating">Arabic</span>
-            </div>
+      <h1 class="hero-title">
+        <span class="text-gator">gator</span
+        ><span class="text-lator">lator</span>
+      </h1>
+      <p class="hero-subtitle">
+        Real-time audio translation for global learning. <br />
+        Breaking language barriers, one lecture at a time.
+      </p>
+
+      <div class="control-panel">
+        <a
+          href="https://github.com/suupreme/gatorlator/releases/download/release/gatorlator.zip"
+          class="btn-download"
+          >💾 Download Extension</a
+        >
+        <div class="lang-showcase">
+          <span class="lang-label">Supports:</span>
+          <span class="lang-rotating" id="lang-rotating">Arabic</span>
         </div>
+      </div>
     </div>
 
     <footer>
-        <div class="footer-links">
-            <a href="https://github.com/suupreme/gatorlator" target="_blank">GitHub</a>
-            <a href="https://github.com/suupreme/gatorlator/issues" target="_blank">Report Issues</a>
-            <a href="https://github.com/suupreme/gatorlator#readme" target="_blank">Documentation</a>
-        </div>
-        <p class="footer-credit">Built for SwampHacks at the University of Florida &copy; 2026</p>
+      <div class="footer-links">
+        <a href="https://github.com/suupreme/gatorlator" target="_blank"
+          >GitHub</a
+        >
+        <a href="https://github.com/suupreme/gatorlator/issues" target="_blank"
+          >Report Issues</a
+        >
+        <a href="https://github.com/suupreme/gatorlator#readme" target="_blank"
+          >Documentation</a
+        >
+      </div>
+      <p class="footer-credit">
+        Built for SwampHacks at the University of Florida &copy; 2026
+      </p>
     </footer>
 
     <script>
-        (function () {
-            var languages = [
-                'Arabic', 'Bengali', 'Mandarin', 'French', 'German',
-                'Hindi', 'Japanese', 'Korean', 'Portuguese', 'Russian', 'Spanish'
-            ];
-            var el = document.getElementById('lang-rotating');
-            var i = 0;
-            setInterval(function () {
-                el.classList.add('fade-out');
-                setTimeout(function () {
-                    i = (i + 1) % languages.length;
-                    el.textContent = languages[i];
-                    el.classList.remove('fade-out');
-                }, 400);
-            }, 3000);
-        })();
+      (function () {
+        var languages = [
+          "Arabic",
+          "Bengali",
+          "Mandarin",
+          "French",
+          "German",
+          "Hindi",
+          "Japanese",
+          "Korean",
+          "Portuguese",
+          "Russian",
+          "Spanish",
+        ];
+        var el = document.getElementById("lang-rotating");
+        var i = 0;
+        setInterval(function () {
+          el.classList.add("fade-out");
+          setTimeout(function () {
+            i = (i + 1) % languages.length;
+            el.textContent = languages[i];
+            el.classList.remove("fade-out");
+          }, 400);
+        }, 3000);
+      })();
     </script>
-</body>
-
+  </body>
 </html>
