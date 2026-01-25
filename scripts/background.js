@@ -6,7 +6,7 @@
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   // FLOW 1 : Capture Tab Audio (Current Website -> DeepGram)
   if (request.action === "startCapture") {
-    await startCapture();
+    await startCapture(request.language); // Pass language to startCapture
     console.log("starting capture");
     sendResponse({ status: "success", message: "Audio capture started." });
   } else if (request.action === "stopCapture") {
@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 //---------------------------------------------
 //TAB AUDIO CAPTURE - (using Offscreen Document)
 //---------------------------------------------
-async function startCapture() {
+async function startCapture(language) { // Accept language argument
   try {
     // If an offscreen document already exists, it means a capture might be active.
     // Stop any existing capture before starting a new one to prevent "active stream" error.
@@ -54,12 +54,12 @@ async function startCapture() {
       targetTabId: activeTab.id,
     });
 
-    //Send the stream ID to the Offscreen document
+    //Send the stream ID and language to the Offscreen document
     await chrome.runtime.sendMessage({
-      // Await the response
       target: "offscreen",
       type: "START_RECORDING",
       streamId: streamId,
+      language: language, // Use the passed language
     });
   } catch (error) {
     console.error("Error starting capture:", error);

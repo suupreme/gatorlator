@@ -1,15 +1,14 @@
 // Architect Note: No API keys here! They stay in your secure .env and services files.
-const DEEPGRAM_API_KEY = "fb0d309965f18daf0665a28cd008a8257d606b37";
-const DEEPL_API_KEY = "a183f293-6a71-4c4e-878b-39e909f4536a:fx";
-const ELEVENLABS_API_KEY =
-  "1303f7a583fcd1a4ec3236c1c67f8a291945833e79c42870b81b9283e80ca7f9";
+const DEEPGRAM_API_KEY = "";
+const DEEPL_API_KEY = "";
+const ELEVENLABS_API_KEY = "";
 
 // Testing Defaults
 //
 
 // https://elevenlabs.io/app/agents/voice-library?voiceId=Wl3O9lmFSMgGFTTwuS6f
 const VOICE_ID = "Wl3O9lmFSMgGFTTwuS6f";
-const targetLanguage = "ES";
+let targetLanguage;
 
 let ttsQueue = [];
 let isProcessingQueue = false;
@@ -32,6 +31,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   switch (message.type) {
     case "START_RECORDING":
       await startStreaming(message.streamId);
+      targetLanguage = message.language; // Re-added this line
       sendResponse({ status: "success", message: "Recording started" }); // Respond after starting
       break;
     case "STOP_RECORDING":
@@ -52,6 +52,9 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       // Background script sends the audio buffer here to be played
       playAudio(message.audioBuffer);
       sendResponse({ status: "success", message: "Audio played" }); // Respond after playing
+      break;
+    case "SET_LANGUAGE":
+      targetLanguage = message.language;
       break;
   }
   return true; // Indicate that sendResponse will be called asynchronously
@@ -113,6 +116,8 @@ function startDeepgram(stream) {
           // Use the buffer, then clear it for the next sentence
           const textToTranslate = transcriptBuffer.trim();
           transcriptBuffer = "";
+
+          console.log(targetLanguage);
 
           const result = await translateText(textToTranslate, targetLanguage);
           const translatedText = result.translations[0].text;

@@ -31,16 +31,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const actionType = isTranslationEnabled ? "startCapture" : "stopCapture";
 
     // Send message to background.js to enable/disable live translation
-    chrome.runtime.sendMessage({ action: actionType }, (response) => {
-      if (chrome.runtime.lastError) {
-        console.error(
-          "Error sending message:",
-          chrome.runtime.lastError.message,
-        );
-      } else {
-        console.log("Response from background:", response.message);
-      }
-    });
+    chrome.runtime.sendMessage(
+      { action: actionType, language: targetLanguage }, // Pass language to background.js
+      (response) => {
+        if (chrome.runtime.lastError) {
+          console.error(
+            "Error sending message:",
+            chrome.runtime.lastError.message,
+          );
+        } else {
+          console.log("Response from background:", response.message);
+        }
+      },
+    );
 
     console.log(
       `Live translation ${isTranslationEnabled ? "enabled" : "disabled"} for ${targetLanguage}`,
@@ -63,6 +66,13 @@ document.addEventListener("DOMContentLoaded", function () {
   languageSelect.addEventListener("change", (event) => {
     targetLanguage = event.target.value;
     chrome.storage.sync.set({ targetLanguage: targetLanguage });
+
+    // Send updated language to offscreen.js
+    chrome.runtime.sendMessage({
+      language: targetLanguage,
+      target: "offscreen",
+      type: "SET_LANGUAGE",
+    });
 
     updateUI();
   });
