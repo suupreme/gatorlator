@@ -1,4 +1,4 @@
- <!-- popup.html -->
+<!-- popup.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -285,7 +285,7 @@
   </style>
 </head>
 <body>
-  <h1>🐊 Gatorlater</h1>
+  <h1>Gatorlator</h1>
   
   <div class="tabs">
     <div class="tab active" data-tab="main">Main</div>
@@ -293,23 +293,21 @@
   </div>
   
   <!-- Main Tab -->
- <div class="tab-content active" id="main-tab">
+  <div class="tab-content active" id="main-tab">
     <div class="section">
       <label for="targetLang">Your Language</label>
       <select id="targetLang">
-        <option value="zh-CN">中文 (Chinese)</option>
-        <option value="es">Español (Spanish)</option>
-        <option value="hi">हिन्दी (Hindi)</option>
         <option value="ar">العربية (Arabic)</option>
-        <option value="pt">Português (Portuguese)</option>
-        <option value="ja">日本語 (Japanese)</option>
-        <option value="ko">한국어 (Korean)</option>
+        <option value="bn">বাংলা (Bengali)</option>
+        <option value="zh-CN">中文 (Chinese)</option>
         <option value="fr">Français (French)</option>
         <option value="de">Deutsch (German)</option>
+        <option value="hi">हिन्दी (Hindi)</option>
+        <option value="ja">日本語 (Japanese)</option>
+        <option value="ko">한국어 (Korean)</option>
+        <option value="pt">Português (Portuguese)</option>
         <option value="ru">Русский (Russian)</option>
-        <option value="it">Italiano (Italian)</option>
-        <option value="nl">Nederlands (Dutch)</option>
-        <option value="pl">Polski (Polish)</option>
+        <option value="es">Español (Spanish)</option>
       </select>
     </div>
     
@@ -347,7 +345,7 @@
   </div>
   
   <!-- Settings Tab -->
- <div class="tab-content" id="settings-tab">
+  <div class="tab-content" id="settings-tab">
     <div class="api-section">
       <div class="api-section-title">Speaches.ai Configuration</div>
       <label for="speachesApiKey">Speaches.ai API Key</label>
@@ -385,22 +383,9 @@
       </div>
     </div>
     
-    <div class="api-section">
-      <div class="api-section-title">Audio Mode</div>
-      <label for="audioMode">Default Audio Source</label>
-      <select id="audioMode" style="width: 100%; margin-top: 4px;">
-        <option value="tab">Tab Audio (Videos, Lectures)</option>
-        <option value="mic">Microphone (Conversations)</option>
-      </select>
-      <div class="api-help">
-        Choose default audio source. Can be changed via floating UI.
-      </div>
-    </div>
-    
     <button class="button secondary" id="saveSettingsBtn">Save Settings</button>
   </div>
   
   <script src="popup.js"></script>
 </body>
-</html> 
-
+</html>
