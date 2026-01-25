@@ -35,7 +35,7 @@
     if (floatingUI) return;
     
     floatingUI = document.createElement('div');
-    floatingUI.id = 'gatorlater-floating-ui';
+    floatingUI.id = 'gatorlator-floating-ui';
     floatingUI.style.cssText = `
       position: fixed;
       bottom: 20px;
@@ -59,7 +59,7 @@
     
     // Audio mode toggle
     const modeToggle = document.createElement('button');
-    modeToggle.id = 'gatorlater-mode-toggle';
+    modeToggle.id = 'gatorlator-mode-toggle';
     modeToggle.innerHTML = audioMode === 'tab' ? '🎧' : '🎤';
     modeToggle.title = audioMode === 'tab' ? 'Tab Audio' : 'Microphone';
     modeToggle.style.cssText = `
@@ -81,7 +81,7 @@
     
     // Status indicator
     const status = document.createElement('div');
-    status.id = 'gatorlater-status';
+    status.id = 'gatorlator-status';
     status.textContent = 'Ready';
     status.style.cssText = `
       font-size: 13px;
@@ -91,7 +91,7 @@
     
     // Start/Stop button
     const toggleBtn = document.createElement('button');
-    toggleBtn.id = 'gatorlater-toggle-btn';
+    toggleBtn.id = 'gatorlator-toggle-btn';
     toggleBtn.textContent = 'Start';
     toggleBtn.style.cssText = `
       background: #6366f1;
@@ -114,7 +114,7 @@
     
     // Language selector (compact)
     const langSelect = document.createElement('select');
-    langSelect.id = 'gatorlater-lang-select';
+    langSelect.id = 'gatorlator-lang-select';
     langSelect.style.cssText = `
       background: white;
       border: 1px solid rgba(0, 0, 0, 0.1);
@@ -165,7 +165,7 @@
     audioMode = audioMode === 'tab' ? 'mic' : 'tab';
     chrome.storage.sync.set({ audioMode: audioMode });
     
-    const toggle = document.getElementById('gatorlater-mode-toggle');
+    const toggle = document.getElementById('gatorlator-mode-toggle');
     toggle.innerHTML = audioMode === 'tab' ? '🎧' : '🎤';
     toggle.title = audioMode === 'tab' ? 'Tab Audio' : 'Microphone';
     
@@ -194,12 +194,12 @@
       } else if (request.action === 'captureStarted') {
         isCapturing = true;
         updateStatus('Recording...', 'recording');
-        const btn = document.getElementById('gatorlater-toggle-btn');
+        const btn = document.getElementById('gatorlator-toggle-btn');
         if (btn) btn.textContent = 'Stop';
       } else if (request.action === 'captureStopped') {
         isCapturing = false;
         updateStatus('Stopped', '');
-        const btn = document.getElementById('gatorlater-toggle-btn');
+        const btn = document.getElementById('gatorlator-toggle-btn');
         if (btn) btn.textContent = 'Start';
       } else if (request.action === 'startAudioCapture') {
         startAudioCapture(request.streamId, request.mode);
@@ -212,7 +212,7 @@
         sendResponse({ success: true });
       } else if (request.action === 'updateLanguage') {
         targetLanguage = request.language;
-        const select = document.getElementById('gatorlater-lang-select');
+        const select = document.getElementById('gatorlator-lang-select');
         if (select) select.value = targetLanguage;
       }
       return true;
@@ -305,7 +305,7 @@
         }, 2000);
         
       // Store reference for cleanup
-      window.__gatorlaterAudioCapture = {
+      window.__gatorlatorAudioCapture = {
           stream, 
           audioContext, 
           processor: audioProcessor,
@@ -324,20 +324,20 @@
   
   // Stop audio capture
   function stopAudioCapture() {
-    if (window.__gatorlaterAudioCapture) {
-      if (window.__gatorlaterAudioCapture.interval) {
-        clearInterval(window.__gatorlaterAudioCapture.interval);
+    if (window.__gatorlatorAudioCapture) {
+      if (window.__gatorlatorAudioCapture.interval) {
+        clearInterval(window.__gatorlatorAudioCapture.interval);
       }
-      if (window.__gatorlaterAudioCapture.processor) {
-        window.__gatorlaterAudioCapture.processor.disconnect();
+      if (window.__gatorlatorAudioCapture.processor) {
+        window.__gatorlatorAudioCapture.processor.disconnect();
       }
-      if (window.__gatorlaterAudioCapture.stream) {
-        window.__gatorlaterAudioCapture.stream.getTracks().forEach(track => track.stop());
+      if (window.__gatorlatorAudioCapture.stream) {
+        window.__gatorlatorAudioCapture.stream.getTracks().forEach(track => track.stop());
       }
-      if (window.__gatorlaterAudioCapture.audioContext) {
-        window.__gatorlaterAudioCapture.audioContext.close();
+      if (window.__gatorlatorAudioCapture.audioContext) {
+        window.__gatorlatorAudioCapture.audioContext.close();
       }
-      window.__gatorlaterAudioCapture = null;
+      window.__gatorlatorAudioCapture = null;
     }
     
     if (audioProcessor) {
@@ -392,7 +392,7 @@
     if (subtitleContainer) return;
     
     subtitleContainer = document.createElement('div');
-    subtitleContainer.id = 'gatorlater-subtitle-container';
+    subtitleContainer.id = 'gatorlator-subtitle-container';
     subtitleContainer.style.cssText = `
       position: fixed;
       bottom: 100px;
@@ -405,7 +405,7 @@
     `;
     
     currentSubtitle = document.createElement('div');
-    currentSubtitle.id = 'gatorlater-subtitle';
+    currentSubtitle.id = 'gatorlator-subtitle';
     currentSubtitle.style.cssText = `
       background: rgba(0, 0, 0, 0.85);
       color: white;
@@ -449,8 +449,8 @@
     currentSubtitle.style.opacity = '1';
     
     // Auto-hide after 5 seconds of no new subtitles
-    clearTimeout(window.__gatorlaterSubtitleTimeout);
-    window.__gatorlaterSubtitleTimeout = setTimeout(() => {
+    clearTimeout(window.__gatorlatorSubtitleTimeout);
+    window.__gatorlatorSubtitleTimeout = setTimeout(() => {
       currentSubtitle.style.opacity = '0';
     }, 5000);
   }
@@ -482,7 +482,7 @@
   
   // Update status indicator
   function updateStatus(message, type) {
-    const status = document.getElementById('gatorlater-status');
+    const status = document.getElementById('gatorlator-status');
     if (status) {
       status.textContent = message;
       status.style.color = type === 'recording' ? '#10b981' : 
@@ -530,7 +530,7 @@
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === 'updateLanguage') {
       targetLanguage = request.language;
-      const select = document.getElementById('gatorlater-lang-select');
+      const select = document.getElementById('gatorlator-lang-select');
       if (select) select.value = targetLanguage;
     } else if (request.action === 'toggleSubtitles') {
       isEnabled = request.enabled;
