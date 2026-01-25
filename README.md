@@ -5,10 +5,10 @@
 ## Features
 
 - **Real-time Audio Capture** - Captures audio from browser tabs (YouTube, Coursera, Udemy, etc.)
-- **Speech-to-Text** - Uses OpenAI Whisper for accurate lecture transcription
-- **Smart Translation** - DeepL or Google Translate with context awareness
+- **Speech-to-Text** - Uses Deepgram for accurate lecture transcription
+- **Smart Translation** - DeepL with context awareness
+- **Hyper-Realistic-Text-to-Speech** - Uses Elevenlabs to output your preferred language
 - **Live Subtitles** - Beautiful, customizable subtitle display
-- **Replay & Repeat** - Keyboard shortcuts for better learning
 - **Glossary Mode** - Maintains consistent translations for technical terms
 - **Context-Aware** - Remembers previous translations for better accuracy
 
@@ -16,12 +16,13 @@
 
 ### Step 1: Download the Extension
 
-1. Download or clone this repository
+1. Download the Zip file in the Releases
 2. Extract the files to a folder (e.g., `gatorlator-extension`)
 
 ### Step 2: Create Icon Files (Optional)
 
 Create three icon files in the extension folder:
+
 - `icon16.png` (16x16 pixels)
 - `icon48.png` (48x48 pixels)
 - `icon128.png` (128x128 pixels)
@@ -40,36 +41,25 @@ You can use any image editor or download placeholder icons. The extension will w
 
 ### 1. Get API Keys
 
-#### Speech-to-Text (Required)
-- **OpenAI Whisper** (Recommended)
-  - Go to [OpenAI API Keys](https://platform.openai.com/api-keys)
-  - Create a new API key
-  - Copy the key (starts with `sk-`)
+#### Speech-to-Text
 
-#### Translation (Choose One)
+- **Deepgram** (Recommended)
+  - Go to [Deepgram Console](https://console.deepgram.com/)
+  - Create a new API key
+  - Copy the key
+
+#### Translation
+
 - **DeepL** (Best Quality)
   - Sign up at [DeepL Pro API](https://www.deepl.com/pro-api)
   - Get your API key
   - Copy the key
 
-- **Google Translate API** (Alternative)
-  - Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-  - Enable Translation API
-  - Create credentials
-  - Copy the API key
-
-- **Free Translation** (Limited, No API Key)
-  - Less reliable but works without setup
-  - Enable in Settings tab
-
 ### 2. Configure the Extension
 
-1. Click the Gatorlator extension icon in your toolbar
-2. Go to the **Settings** tab
-3. Enter your API keys:
-   - OpenAI API Key (for speech-to-text)
-   - DeepL or Google Translate API Key (for translation)
-4. Click **Save Settings**
+1. Navigate to offscreen.js in the offscreen folder
+2. Enter your API keys in the variables at the top of the file
+3. Save the file
 
 ### 3. Select Your Language
 
@@ -86,12 +76,6 @@ You can use any image editor or download placeholder icons. The extension will w
 3. **Select your language** and click **Start Translation**
 4. **Subtitles will appear** at the bottom of the video as the lecture plays
 
-### Keyboard Shortcuts
-
-- **R** - Replay last 10 seconds
-- **T** - Toggle subtitles on/off
-- **P** - Pause video and repeat last sentence
-
 ### Supported Platforms
 
 - ✅ YouTube
@@ -103,41 +87,46 @@ You can use any image editor or download placeholder icons. The extension will w
 ## How It Works
 
 ```
-Audio Capture → Speech-to-Text → Translation → Subtitle Display
-     ↓              ↓                ↓              ↓
-  Tab Audio    OpenAI Whisper    DeepL/Google    On-Screen
-  (5s chunks)   (Accurate ASR)   (Context-aware)  Subtitles
+Audio Capture → Speech-to-Text → Translation → Text-to-Speech → Subtitle Display
+     ↓              ↓                ↓              ↓               ↓
+  Tab Audio      Deepgram         DeepL           ElevenLabs     On-Screen
+  (5s chunks)   (Accurate ASR)   (Context-aware) (Realistic TTS) Subtitles
 ```
 
 ### Processing Pipeline
 
 1. **Audio Capture**: Captures audio from the browser tab in 5-second chunks
-2. **Speech-to-Text**: Sends audio to OpenAI Whisper API for transcription
-3. **Translation**: Translates the transcript using DeepL or Google Translate
-4. **Display**: Shows translated subtitles on screen with smooth animations
+2. **Speech-to-Text**: Sends audio to Deepgram API for transcription
+3. **Translation**: Translates the transcript using DeepL
+4. **Text-to-Speech**: (Optional) Converts translated text to speech using ElevenLabs
+5. **Display**: Shows translated subtitles on screen with smooth animations
 
 ### Context Awareness
 
 The extension maintains context across translations:
+
 - Remembers last 10 translations for better accuracy
 - Glossary mode for consistent technical term translation
-- Adjustable delay (5-10 seconds) for better accuracy vs. speed
 
 ## Cost Considerations
 
 ### Free Tier Options
+
 - **Web Speech API**: Free but less accurate (fallback only)
 - **Free Google Translate**: Limited, less reliable
 
 ### Paid Options (Recommended)
-- **OpenAI Whisper**: ~$0.006 per minute of audio
+
+- **Deepgram**: ~$0.0045 per minute of audio
 - **DeepL**: ~$0.002 per 1,000 characters
-- **Google Translate**: ~$20 per 1M characters
+- **ElevenLabs**: ~$0.18 per 1,000 characters
 
 **Estimated cost for 1 hour lecture:**
-- Speech-to-Text: ~$0.36 (Whisper)
+
+- Speech-to-Text: ~$0.27 (Deepgram)
 - Translation: ~$0.10-0.50 (depending on language)
-- **Total: ~$0.50 per hour**
+- Text-to-Speech: ~$0.90 (ElevenLabs)
+- **Total: ~$1.27 - $1.67 per hour**
 
 ## Privacy & Ethics
 
@@ -148,70 +137,21 @@ The extension maintains context across translations:
 
 **Note**: Some universities may restrict recording lectures. Always check your institution's policies.
 
-## Troubleshooting
-
-### "Failed to capture tab audio"
-- Make sure the video tab is **active** (clicked on)
-- Refresh the page and try again
-- Check that the video is playing
-
-### "No speech-to-text service configured"
-- Go to Settings tab
-- Enter your OpenAI API key
-- Or enable "Use Web Speech API" (less accurate)
-
-### "No translation service configured"
-- Go to Settings tab
-- Enter DeepL or Google Translate API key
-- Or enable "Use Free Translation"
-
-### Subtitles not appearing
-- Check that subtitles are enabled (toggle in popup)
-- Make sure the video is playing
-- Try refreshing the page
-
-### API Errors
-- Verify your API keys are correct
-- Check your API quota/balance
-- For OpenAI: Check [usage dashboard](https://platform.openai.com/usage)
-- For DeepL: Check [account status](https://www.deepl.com/pro-account)
-
 ## Development
-
-### Project Structure
-
-```
-gatorlator-extension/
-├── manifest.json       # Extension configuration
-├── background.js       # Service worker (audio processing)
-├── content.js          # Content script (subtitle display)
-├── popup.html          # Extension popup UI
-├── popup.js            # Popup logic
-├── styles.css          # Subtitle styling
-└── README.md           # This file
-```
 
 ### Key Technologies
 
 - **Chrome Extension Manifest V3**
 - **Web Audio API** - Audio capture and processing
-- **OpenAI Whisper API** - Speech recognition
-- **DeepL/Google Translate API** - Translation
+- **Deepgram API** - Speech recognition
+- **DeepL API** - Translation
+- **ElevenLabs API** - Text-to-Speech
 - **Chrome Tab Capture API** - Tab audio capture
-
-## Future Features
-
-- [ ] Text-to-Speech output (AI voices)
-- [ ] Mobile app version
-- [ ] Zoom integration
-- [ ] Professor-specific tuning
-- [ ] Export transcriptions
-- [ ] Multi-language support (detect source language)
-- [ ] Offline mode (local processing)
 
 ## Contributing
 
 This is an MVP. Contributions welcome! Areas for improvement:
+
 - Better error handling
 - Offline speech recognition
 - More translation providers
@@ -225,6 +165,7 @@ MIT License - Feel free to use and modify for educational purposes.
 ## Support
 
 For issues or questions:
+
 1. Check the Troubleshooting section above
 2. Review Chrome extension console for errors
 3. Verify API keys and quotas
