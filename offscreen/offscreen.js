@@ -8,6 +8,21 @@ const ELEVENLABS_API_KEY = "";
 
 // https://elevenlabs.io/app/agents/voice-library?voiceId=Wl3O9lmFSMgGFTTwuS6f
 const VOICE_ID = "Wl3O9lmFSMgGFTTwuS6f";
+
+const ELEVENLABS_VOICES = {
+  ar: "VwC51uc4PUblWEJSPzeo", // Arabic
+  "zh-HK": "n4xdXKggn5lFcXFYE4TA", // Cantonese
+  "zh-CN": "cHDwXsKG0qHMNLIjOusN", // Mandarin
+  fr: "FvmvwvObRqIHojkEGh5N", // French
+  de: "g1jpii0iyvtRs8fqXsd1", // German
+  hi: "gMRjEAcWCvjoyqIfZqlp", // Hindi
+  ja: "fUjY9K2nAIwlALOwSiwc", // Japanese
+  ko: "IAETYMYM3nJvjnlkVTKI", // Korean
+  pt: "Qrdut83w0Cr152Yb4Xn3", // Portuguese
+  ru: "MWyJiWDobXN8FX3CJTdE", // Russian
+  es: "bsEDAkNZWaEolZ7vEeVJ", // Spanish
+};
+
 let targetLanguage;
 
 let ttsQueue = [];
@@ -180,10 +195,13 @@ async function translateText(text, targetLang) {
 
 async function playElevenLabsTTS(text) {
   return new Promise(async (resolve, reject) => {
-    // Wrap in a promise
+    // Determine the voice ID to use
+    const voiceToUse =
+      ELEVENLABS_VOICES[targetLanguage] || "Wl3O9lmFSMgGFTTwuS6f"; // Fallback to original VOICE_ID
+
     try {
       const response = await fetch(
-        `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
+        `https://api.elevenlabs.io/v1/text-to-speech/${voiceToUse}`,
         {
           method: "POST",
           headers: {
