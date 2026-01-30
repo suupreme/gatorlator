@@ -1,4 +1,4 @@
-# 🐊🌍 Gatorlator - Live Lecture Translation
+# 🐊🌍 Gatorlator - Live Audio Translator
 
 **AI lecture companion for international students** - Real-time translation subtitles for lecture videos, Zoom classes, and online courses.
 
@@ -98,7 +98,7 @@ Audio Capture → Speech-to-Text → Translation → Text-to-Speech → Subtitle
 1. **Audio Capture**: Captures audio from the browser tab in 5-second chunks
 2. **Speech-to-Text**: Sends audio to Deepgram API for transcription
 3. **Translation**: Translates the transcript using DeepL
-4. **Text-to-Speech**: (Optional) Converts translated text to speech using ElevenLabs
+4. **Text-to-Speech**: Converts translated text to speech using ElevenLabs
 5. **Display**: Shows translated subtitles on screen with smooth animations
 
 ### Context Awareness
